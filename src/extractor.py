@@ -13,26 +13,94 @@ extractor.py - שליפת EXIF מתמונות
 
 
 def has_gps(data: dict):
-    pass
+    """
+    בודק אם קיים GPS לקובץ
+    Args:
+        data: מילון של פרטים על התמונה
+
+    Returns: True/False
+    """
+    return "GPSInfo" in data
 
 
 def latitude(data: dict):
-    pass
+    """
+    מחלץ את קו הרוחב של המיקום של התמונה
+    Args:
+        data: מילון של פרטים על התמונה
+
+    Returns: מספר עשרוני של latitude
+    """
+    if has_gps(data):
+        try:
+            lat =  data["GPSInfo"][2]
+            result = float(lat[0] + lat[1]/60 + lat[2]/3600)
+            return result
+        except:
+            return None
+    else:
+        return None
 
 
 def longitude(data: dict):
-    pass
+    """
+    מחלץ את קו האורך של המיקום של התמונה
+    Args:
+        data: מילון של פרטים על התמונה
+
+    Returns: מספר עשרוני של longitude
+    """
+    if has_gps(data):
+        try:
+            lat = data["GPSInfo"][4]
+            result = float(lat[0] + (lat[1] / 60) + (lat[2] / 3600))
+            return result
+        except:
+            return None
+    else:
+        return None
+
 
 def datatime(data: dict):
-    pass
+    """
+    מחלץ את התאריך והזמן שצולם התמונה
+    Args:
+        data: מילון של פרטים על התמונה
+
+    Returns: תאריך data["DateTimeOriginal"]
+    """
+    try:
+        return data["DateTimeOriginal"]
+    except:
+        return None
 
 
 def camera_make(data: dict):
-    pass
+    """
+    מחלץ את היצרן של המכשיר שבו צולם התמונה
+    Args:
+        data: מילון של פרטים על התמונה
+
+    Returns: יצרן data["Make"]
+    """
+    try:
+        return data["Make"].split("\x00")[0]
+    except:
+        return None
 
 
 def camera_model(data: dict):
-    pass
+    """
+    מחלץ את סוג המכשיר שבו צולם התמונה
+    Args:
+        data: מילון של פרטים על התמונה
+
+    Returns: סוג המכשיר data["Model"]
+    """
+    try:
+        return data["Model"].split("\x00")[0]
+    except:
+        return None
 
 
 def extract_metadata(image_path):
@@ -70,7 +138,6 @@ def extract_metadata(image_path):
     for tag_id, value in exif.items():
         tag = TAGS.get(tag_id, tag_id)
         data[tag] = value
-
     # תיקון: הוסר print(data) שהיה כאן - הדפיס את כל ה-EXIF הגולמי על כל תמונה
 
     exif_dict = {
@@ -95,4 +162,18 @@ def extract_all(folder_path):
     Returns:
         list של dicts (כמו extract_metadata)
     """
-    pass
+    path = Path(folder_path)
+    imgs = []
+    try:
+        # עוברים על כל הקבצים שיש בתיקייה
+        for file in path.rglob('*'):
+            try:
+                # מנסה לפתוח כתמונה ואם לא מצליח ממשיך הלאה
+                if Image.open(file):
+                    imgs.append(extract_metadata(file))
+            except:
+                continue
+        return imgs
+    except Exception as e:
+        print(e)
+        return None
