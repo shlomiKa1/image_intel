@@ -1,7 +1,9 @@
 from PIL import Image
-from PIL.ExifTags import TAGS
 from pathlib import Path
-import os
+from PIL.ExifTags import TAGS
+
+
+SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.tiff', '.tif', '.heic'}
 
 """
 extractor.py - שליפת EXIF מתמונות
@@ -10,6 +12,23 @@ extractor.py - שליפת EXIF מתמונות
 ראו docs/api_contract.md לפורמט המדויק של הפלט.
 
 """
+def dms_to_decimal(dms_tuple, ref):
+    """
+    פונקצית לחישוב שטח של המיקום של ה GPS
+    Args:
+        dms_tuple: טפל של (מעלות, דקות, שניות) משמאל לימין
+        ref: איזה אזור במפה: (N, E, S, W)
+
+    Returns: מספר עשרוני של מיקום המדויק של ה GPS למפה
+    """
+    degrees = dms_tuple[0]
+    minutes = dms_tuple[1]
+    seconds = dms_tuple[2]
+    decimal = float(degrees) + (float(minutes) / 60) + (float(seconds) / 3600)
+    # טיפול בדרום ומערב שצריך את הערך השלילי
+    if ref in [b'S', b'W', 'S', 'W']:
+        decimal = -decimal
+    return decimal
 
 
 def has_gps(data: dict):
@@ -18,9 +37,11 @@ def has_gps(data: dict):
     Args:
         data: מילון של פרטים על התמונה
 
-    Returns: True/False
+    Returns: True אם יש GPS, אחרת False
     """
-    return "GPSInfo" in data
+    # מילון למפתחות של הקווים למיקום של המפה
+    required_keys = {1, 2, 3, 4}
+    return required_keys.issubset(data["GPSInfo"].keys()) if "GPSInfo" in data else False
 
 
 def latitude(data: dict):
@@ -29,13 +50,12 @@ def latitude(data: dict):
     Args:
         data: מילון של פרטים על התמונה
 
-    Returns: מספר עשרוני של latitude
+    Returns: מספר עשרוני של latitude, או None
     """
     if has_gps(data):
         try:
-            lat =  data["GPSInfo"][2]
-            result = float(lat[0] + lat[1]/60 + lat[2]/3600)
-            return result
+            lat =  dms_to_decimal(data["GPSInfo"][2], data["GPSInfo"][1])
+            return lat
         except:
             return None
     else:
@@ -48,13 +68,12 @@ def longitude(data: dict):
     Args:
         data: מילון של פרטים על התמונה
 
-    Returns: מספר עשרוני של longitude
+    Returns: מספר עשרוני של longitude, או None
     """
     if has_gps(data):
         try:
-            lat = data["GPSInfo"][4]
-            result = float(lat[0] + (lat[1] / 60) + (lat[2] / 3600))
-            return result
+            lon = dms_to_decimal(data["GPSInfo"][4], data["GPSInfo"][3])
+            return lon
         except:
             return None
     else:
@@ -67,7 +86,7 @@ def datatime(data: dict):
     Args:
         data: מילון של פרטים על התמונה
 
-    Returns: תאריך data["DateTimeOriginal"]
+    Returns: מחרוזת תאריך data["DateTimeOriginal"], או None
     """
     try:
         return data["DateTimeOriginal"]
@@ -81,7 +100,7 @@ def camera_make(data: dict):
     Args:
         data: מילון של פרטים על התמונה
 
-    Returns: יצרן data["Make"]
+    Returns: מחרוזת יצרן data["Make"], או None
     """
     try:
         return data["Make"].split("\x00")[0]
@@ -95,7 +114,7 @@ def camera_model(data: dict):
     Args:
         data: מילון של פרטים על התמונה
 
-    Returns: סוג המכשיר data["Model"]
+    Returns: מחרוזת סוג המכשיר data["Model"], או None
     """
     try:
         return data["Model"].split("\x00")[0]
@@ -160,20 +179,17 @@ def extract_all(folder_path):
         folder_path: נתיב לתיקייה
 
     Returns:
-        list של dicts (כמו extract_metadata)
+        list של dicts (כמו extract_metadata), או רשימה ריקה
     """
     path = Path(folder_path)
     imgs = []
     try:
         # עוברים על כל הקבצים שיש בתיקייה
         for file in path.rglob('*'):
-            try:
-                # מנסה לפתוח כתמונה ואם לא מצליח ממשיך הלאה
-                if Image.open(file):
-                    imgs.append(extract_metadata(file))
-            except:
-                continue
+            # בדיקות האם זה קובץ שמסתיים באחד מ- {'.jpg', '.jpeg', '.png', '.tiff', '.tif', '.heic'}
+            if file.is_file() and file.suffix.lower() in SUPPORTED_EXTENSIONS:
+                imgs.append(extract_metadata(file))
         return imgs
     except Exception as e:
         print(e)
-        return None
+        return []
