@@ -1,7 +1,16 @@
+from datetime import datetime
+
 from PIL import Image
 from pathlib import Path
 from PIL.ExifTags import TAGS
 
+FORMATS = [
+        "%Y:%m:%d %H:%M:%S",  # EXIF סטנדרטי
+        "%Y-%m-%d %H:%M:%S",  # מקפים
+        "%Y/%m/%d %H:%M:%S",  # לוכסנים
+        "%Y:%m:%d %H:%M:%S%z",  # עם timezone
+        "%Y-%m-%d %H:%M:%S%z",  # מקפים עם timezone
+    ]
 
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.tiff', '.tif', '.heic'}
 
@@ -56,7 +65,7 @@ def latitude(data: dict):
         try:
             lat =  dms_to_decimal(data["GPSInfo"][2], data["GPSInfo"][1])
             return lat
-        except:
+        except (KeyError, TypeError, ValueError, IndexError):
             return None
     else:
         return None
@@ -74,24 +83,32 @@ def longitude(data: dict):
         try:
             lon = dms_to_decimal(data["GPSInfo"][4], data["GPSInfo"][3])
             return lon
-        except:
+        except (KeyError, TypeError, ValueError, IndexError):
             return None
     else:
         return None
 
 
-def datatime(data: dict):
+def extract_datetime(data: dict):
     """
     מחלץ את התאריך והזמן שצולם התמונה
     Args:
         data: מילון של פרטים על התמונה
 
-    Returns: מחרוזת תאריך data["DateTimeOriginal"], או None
+    Returns: מחרוזת תאריך data["DateTimeOriginal"], או None אם יש תאריך לא תקין או אין תאריך
     """
-    try:
-        return data["DateTimeOriginal"]
-    except:
+    raw = data.get("DateTimeOriginal") or data.get("DateTime")
+    if not raw:
         return None
+
+    for fmt in FORMATS:
+        try:
+            dt = datetime.strptime(raw.strip(), fmt)
+            return dt.strftime("%Y-%m-%d %H:%M:%S")  # תמיד מחזיר פורמט אחיד
+        except ValueError:
+            continue
+    return None
+
 
 
 def camera_make(data: dict):
@@ -104,7 +121,7 @@ def camera_make(data: dict):
     """
     try:
         return data["Make"].split("\x00")[0]
-    except:
+    except (KeyError, AttributeError):
         return None
 
 
@@ -118,7 +135,7 @@ def camera_model(data: dict):
     """
     try:
         return data["Model"].split("\x00")[0]
-    except:
+    except (KeyError, AttributeError):
         return None
 
 
@@ -137,9 +154,9 @@ def extract_metadata(image_path):
 
     # תיקון: טיפול בתמונה בלי EXIF - בלי זה, exif.items() נופל עם AttributeError
     try:
-        img = Image.open(image_path)
-        exif = img._getexif()
-    except Exception:
+        with Image.open(image_path) as img:
+            exif = img._getexif()
+    except (OSError, IOError, AttributeError):
         exif = None
 
     if exif is None:
@@ -161,7 +178,7 @@ def extract_metadata(image_path):
 
     exif_dict = {
         "filename": path.name,
-        "datetime": datatime(data),
+        "datetime": extract_datetime(data),
         "latitude": latitude(data),
         "longitude": longitude(data),
         "camera_make": camera_make(data),
@@ -190,6 +207,5 @@ def extract_all(folder_path):
             if file.is_file() and file.suffix.lower() in SUPPORTED_EXTENSIONS:
                 imgs.append(extract_metadata(file))
         return imgs
-    except Exception as e:
-        print(e)
+    except OSError:
         return []
