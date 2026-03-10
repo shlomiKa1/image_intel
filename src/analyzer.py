@@ -40,7 +40,11 @@ def analyzer(data_dicts: list[dict]) -> dict | None:
             continue
 
         curr_filename = dic.get("filename")
-        curr_camera = dic.get("camera_model")
+
+        make = dic.get("camera_make") or ""
+        model = dic.get("camera_model") or ""
+        curr_camera = f"{make} {model}".strip()
+
         curr_time = dic.get("datetime")
         has_gps = dic.get("has_gps")
 
@@ -63,7 +67,7 @@ def analyzer(data_dicts: list[dict]) -> dict | None:
             res["unique_cameras"].add(curr_camera)
 
         # Insight 1: camera changed
-        if prev_camera is not None and curr_camera is not None and prev_camera != curr_camera:
+        if prev_camera and curr_camera and prev_camera != curr_camera:
             insight = (
                 f"הסוכן החליף מכשיר בתאריך {curr_time}, "
                 f"מכשיר קודם: {prev_camera}, מכשיר חדש: {curr_camera}"
