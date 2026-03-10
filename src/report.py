@@ -221,80 +221,18 @@ def create_report(images_data, map_html, timeline_html, analysis):
     """
 
     return html
+    
+# אל תשכחו להוסיף את הנתונים האמיתיים
+# if __name__ == "__main__":
 
-if __name__ == "__main__":
+#     html = create_report(
+#         fake_images_data,
+#         fake_map_html,
+#         fake_timeline_html,
+#         fake_analysis
+#     )
 
-    fake_images_data = [
-        {
-            "filename": "IMG_001.jpg",
-            "camera": "iPhone 13",
-            "datetime": "2024:01:01 10:30:00",
-            "has_gps": True
-        },
-        {
-            "filename": "IMG_002.jpg",
-            "camera": "Canon EOS 80D",
-            "datetime": "2024:01:01 11:00:00",
-            "has_gps": False
-        },
-        {
-            "filename": "IMG_003.jpg",
-            "camera": "Samsung Galaxy S22",
-            "datetime": "2024:01:02 09:15:00",
-            "has_gps": True
-        }
-    ]
+#     with open("test_report.html", "w", encoding="utf-8") as f:
+#         f.write(html)
 
-    fake_map_html = """
-    <div style="
-        height:300px;
-        background:#ddd;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border-radius:8px;
-        font-weight:bold;
-    ">
-        MAP PLACEHOLDER
-    </div>
-    """
-
-    fake_timeline_html = """
-    <div style="
-        height:200px;
-        background:#eee;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border-radius:8px;
-        font-weight:bold;
-    ">
-        TIMELINE PLACEHOLDER
-    </div>
-    """
-
-    fake_analysis = {
-        "total_images": 3,
-        "images_with_gps": 2,
-        "unique_cameras": [
-            "iPhone 13",
-            "Canon EOS 80D",
-            "Samsung Galaxy S22"
-        ],
-        "insights": [
-            "רוב התמונות צולמו באותו יום",
-            "זוהו שלושה מכשירים שונים"
-        ]
-    }
-
-    html_output = create_report(
-        fake_images_data,
-        fake_map_html,
-        fake_timeline_html,
-        fake_analysis
-    )
-
-    with open("test_report.html", "w", encoding="utf-8") as f:
-        f.write(html_output)
-
-    print("✔ test_report.html נוצר בהצלחה")    
+#     print("test_report.html נוצר בהצלחה")

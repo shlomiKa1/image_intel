@@ -7,11 +7,12 @@
 
         <style>
             body {
-                font-family: Arial;
+                font-family: Arial, sans-serif;
                 max-width: 1200px;
                 margin: 0 auto;
                 padding: 20px;
                 background: #f5f5f5;
+                color: #222;
             }
 
             .header {
@@ -34,6 +35,7 @@
                 display: flex;
                 gap: 20px;
                 justify-content: center;
+                flex-wrap: wrap;
             }
 
             .stat-card {
@@ -41,6 +43,7 @@
                 padding: 15px 25px;
                 border-radius: 8px;
                 text-align: center;
+                min-width: 140px;
             }
 
             .stat-number {
@@ -62,6 +65,7 @@
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 15px;
+                overflow: hidden;
             }
 
             th, td {
@@ -78,23 +82,29 @@
             tr:hover {
                 background: #f9f9f9;
             }
-        </style>
 
+            ul {
+                padding-right: 20px;
+            }
+
+            .footer {
+                text-align: center;
+                color: #888;
+                margin-top: 30px;
+            }
+        </style>
     </head>
 
     <body>
 
         <div class="header">
             <h1>Image Intel Report</h1>
-            <p>נוצר ב-10/03/2026 16:24</p>
+            <p>נוצר ב-10/03/2026 16:39</p>
         </div>
-
 
         <div class="section">
             <h2>סיכום</h2>
-
             <div class="stats">
-
                 <div class="stat-card">
                     <div class="stat-number">3</div>
                     <div>תמונות</div>
@@ -109,14 +119,11 @@
                     <div class="stat-number">3</div>
                     <div>מכשירים</div>
                 </div>
-
             </div>
         </div>
 
-
         <div class="section">
             <h2>פירוט קבצים</h2>
-
             <table>
                 <thead>
                     <tr>
@@ -126,7 +133,6 @@
                         <th>GPS</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     
         <tr>
@@ -151,39 +157,56 @@
         </tr>
         
                 </tbody>
-
             </table>
-
         </div>
-
 
         <div class="section">
             <h2>תובנות מרכזיות</h2>
             <ul>
-                <li>רוב התמונות צולמו באותו יום</li><li>שלושה מכשירים שונים זוהו</li>
+                <li>רוב התמונות צולמו באותו יום</li><li>זוהו שלושה מכשירים שונים</li>
             </ul>
         </div>
 
-
         <div class="section">
             <h2>מפה</h2>
-            <div style='height:300px;background:#ddd;text-align:center;padding-top:130px;'>MAP PLACEHOLDER</div>
+            
+    <div style="
+        height:300px;
+        background:#ddd;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:8px;
+        font-weight:bold;
+    ">
+        MAP PLACEHOLDER
+    </div>
+    
         </div>
-
 
         <div class="section">
             <h2>ציר זמן</h2>
-            <div style='height:200px;background:#eee;text-align:center;padding-top:80px;'>TIMELINE PLACEHOLDER</div>
+            
+    <div style="
+        height:200px;
+        background:#eee;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:8px;
+        font-weight:bold;
+    ">
+        TIMELINE PLACEHOLDER
+    </div>
+    
         </div>
-
 
         <div class="section">
             <h2>מכשירים</h2>
             <span class='badge'>iPhone 13</span> <span class='badge'>Canon EOS 80D</span> <span class='badge'>Samsung Galaxy S22</span> 
         </div>
 
-
-        <div style="text-align:center; color:#888; margin-top:30px;">
+        <div class="footer">
             Image Intel | האקתון 2025
         </div>
 
