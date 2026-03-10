@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_6bd015e6e8fb44dade440e3eb52d9434 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+    <div style="
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        z-index: 9999;
+        background-color: white;
+        border: 2px solid gray;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 14px;
+        box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+        min-width: 180px;
+    ">
+        <div style="font-weight: bold; margin-bottom: 10px;">מקרא מכשירים</div>
+        
+            <div style="margin-bottom: 6px;">
+                <span style="
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    background-color: red;
+                    border-radius: 50%;
+                    margin-left: 8px;
+                    border: 1px solid black;
+                "></span>
+                <span dir="ltr">Galaxy S23</span>
+            </div>
+        
+            <div style="margin-bottom: 6px;">
+                <span style="
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    background-color: blue;
+                    border-radius: 50%;
+                    margin-left: 8px;
+                    border: 1px solid black;
+                "></span>
+                <span dir="ltr">iPhone 15 Pro</span>
+            </div>
+        
+    </div>
+    
+    
+            <div class="folium-map" id="map_6bd015e6e8fb44dade440e3eb52d9434" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_6bd015e6e8fb44dade440e3eb52d9434 = L.map(
+                "map_6bd015e6e8fb44dade440e3eb52d9434",
+                {
+                    center: [31.9268, 34.997749999999996],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 8,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_fe8d9b497adc09870035078964c6c7ee = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_fe8d9b497adc09870035078964c6c7ee.addTo(map_6bd015e6e8fb44dade440e3eb52d9434);
+        
+    
+            var marker_18c0abb5acfb1acaaab137453e2b47a4 = L.marker(
+                [32.0853, 34.7818],
+                {
+}
+            ).addTo(map_6bd015e6e8fb44dade440e3eb52d9434);
+        
+    
+            var icon_afa2ebbc16bd9f24c75d81ab8ba3c13a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "camera",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_92a5fa490ab2459fa90c8325e3ee2f81 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_972431d64a487b586bf69f98cbf0eefb = $(`<div id="html_972431d64a487b586bf69f98cbf0eefb" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="margin-bottom: 10px; margin-top: 0px;">                     <i class="fa fa-camera"></i> test1.jpg                 </h4>                 <b>Photo #:</b> 1<br>                 <b>Time:</b> 2025-01-12 08:30:00<br>                 <b>Device:</b> Galaxy S23<br>                 <b>Coordinates:</b><br>                 32.085300, 34.781800             </div>         </div>`)[0];
+                popup_92a5fa490ab2459fa90c8325e3ee2f81.setContent(html_972431d64a487b586bf69f98cbf0eefb);
+            
+        
+
+        marker_18c0abb5acfb1acaaab137453e2b47a4.bindPopup(popup_92a5fa490ab2459fa90c8325e3ee2f81)
+        ;
+
+        
+    
+    
+                marker_18c0abb5acfb1acaaab137453e2b47a4.setIcon(icon_afa2ebbc16bd9f24c75d81ab8ba3c13a);
+            
+    
+            var marker_45cf9423a91917e4f603432917e2b592 = L.marker(
+                [31.7683, 35.2137],
+                {
+}
+            ).addTo(map_6bd015e6e8fb44dade440e3eb52d9434);
+        
+    
+            var icon_5ded3d2a8c3268c692bd1ee0e38c1be5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "camera",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_705cb045348a5b6ca9422e879ae1353d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1836e52480562ed7fa4962b718fa1ca3 = $(`<div id="html_1836e52480562ed7fa4962b718fa1ca3" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="margin-bottom: 10px; margin-top: 0px;">                     <i class="fa fa-camera"></i> test2.jpg                 </h4>                 <b>Photo #:</b> 2<br>                 <b>Time:</b> 2025-01-13 09:00:00<br>                 <b>Device:</b> iPhone 15 Pro<br>                 <b>Coordinates:</b><br>                 31.768300, 35.213700             </div>         </div>`)[0];
+                popup_705cb045348a5b6ca9422e879ae1353d.setContent(html_1836e52480562ed7fa4962b718fa1ca3);
+            
+        
+
+        marker_45cf9423a91917e4f603432917e2b592.bindPopup(popup_705cb045348a5b6ca9422e879ae1353d)
+        ;
+
+        
+    
+    
+                marker_45cf9423a91917e4f603432917e2b592.setIcon(icon_5ded3d2a8c3268c692bd1ee0e38c1be5);
+            
+    
+            var poly_line_44f9bd227ff954c389790daa094e2dfd = L.polyline(
+                [[32.0853, 34.7818], [31.7683, 35.2137]],
+                {"bubblingMouseEvents": true, "color": "darkblue", "dashArray": "5, 5", "dashOffset": null, "fill": false, "fillColor": "darkblue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_6bd015e6e8fb44dade440e3eb52d9434);
+        
+    
+            poly_line_44f9bd227ff954c389790daa094e2dfd.bindTooltip(
+                `<div>
+                     Photo Route
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
