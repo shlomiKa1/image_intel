@@ -1,6 +1,6 @@
 from datetime import datetime
 
-FORMAT_DATE = "%Y:%m:%d %H:%M:%S"  # תואם לפורמט שמחזיר extractor
+FORMAT_DATE = "%Y-%m-%d %H:%M:%S"  # תואם לפורמט שמחזיר extractor
 GAP = 12  # שעות מינימום להצגת פער זמן
 
 # צבעים לפי יום (מחזורי)
@@ -263,12 +263,13 @@ def get_day_color(date_str: str, day_color: dict):
     מחזיר צבע ייחודי לכל יום - ע"י שימוש ב dict
     """
     try:
-        day = date_str[:10] # YYYY:MM:DD
+        day = date_str[:10] # YYYY-MM-DD
         if day not  in day_color:
             idx = len(day_color) % len(DAY_COLORS) # לקחת את הצבע הפנוי
             day_color[day] = DAY_COLORS[idx]
         return day_color[day]
-    except Exception:
+    except (IndexError, TypeError) as e:  # רק שגיאות רלוונטיות
+        print(f"Warning: bad date format in get_day_color – {e}")
         return DAY_COLORS[0]
 
 # אייקון לפי סוג מכשיר
