@@ -1,0 +1,243 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Photo Timeline</title>
+        <style>
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: #444;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+
+        .event {
+            padding: 20px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .left  { left: 0;   text-align: right; padding-right: 60px; }
+        .right { left: 50%; text-align: left;  padding-left:  60px; }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: inline-block;
+            max-width: 300px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* Hover: הצגת פרטים נוספים */
+        .card:hover {
+            transform: scale(1.04);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+        }
+
+        .card .extra {
+            display: none;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #555;
+            border-top: 1px solid #eee;
+            padding-top: 6px;
+        }
+
+        .card:hover .extra {
+            display: block;
+        }
+
+        .dot {
+            position: absolute;
+            top: 100px;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 40%;
+            border: 3px solid white;
+            z-index: 1;
+        }
+
+        .left  .dot { right: -10px; }
+        .right .dot { left:  -10px; }
+
+        .time-gap {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .gap-badge {
+            background: #ffc107;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+         
+        .device-icon {
+            width: 48px;
+            height: 48px;
+            transition: transform 0.2s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-8px); }
+        }
+
+        .gap-arrow {
+            font-size: 24px;
+            animation: bounce 1s infinite;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .device-icon:hover { transform: scale(2); }
+        .date   { font-weight: bold; margin-bottom: 5px; }
+        .icon   { font-size: 22px; margin-bottom: 4px; }
+        .camera { color: gray; font-size: 12px; }
+
+        </style>
+        </head>
+        <body>
+        <h1>📸 Photo Timeline</h1>
+        <div class="timeline">
+        
+        <div class="event left">
+            <div class="dot" style="background:#0077ff; box-shadow: 0 0 0 2px #0077ff;"></div>
+            <div class="card" style="border-right: 7px solid #0077ff; background: #0077ff15;">
+                <div class="icon"><img class="device-icon" src="icons/android2.png"></div>
+                <div class="date" style="color:#0077ff;">2023-01-18 07:07:16</div>
+                <div>20230118_070716.jpg</div>
+                <div class="camera">samsung SM-A125F</div>
+                <div class="extra">אין מידע נוסף</div>
+            </div>
+        </div>
+        
+                <div class="time-gap">
+                    <span class="gap-arrow">⬇️</span>
+                    <span class="gap-badge">⏱ עברו 443 שעות</span>
+                    <span class="gap-arrow">⬆️</span>
+                </div>
+        <div class="event right">
+            <div class="dot" style="background:#e63946; box-shadow: 0 0 0 2px #e63946;"></div>
+            <div class="card" style="border-left: 7px solid #e63946; background: #e6394615;">
+                <div class="icon"><img class="device-icon" src="icons/android2.png"></div>
+                <div class="date" style="color:#e63946;">2023-02-05 18:35:51</div>
+                <div>20230205_183551.jpg</div>
+                <div class="camera">samsung SM-A125F</div>
+                <div class="extra">אין מידע נוסף</div>
+            </div>
+        </div>
+        
+                <div class="time-gap">
+                    <span class="gap-arrow">⬇️</span>
+                    <span class="gap-badge">⏱ עברו 45 שעות</span>
+                    <span class="gap-arrow">⬆️</span>
+                </div>
+        <div class="event left">
+            <div class="dot" style="background:#2a9d8f; box-shadow: 0 0 0 2px #2a9d8f;"></div>
+            <div class="card" style="border-right: 7px solid #2a9d8f; background: #2a9d8f15;">
+                <div class="icon">📷</div>
+                <div class="date" style="color:#2a9d8f;">2023-02-07 15:54:48</div>
+                <div>20230207_155449.jpg</div>
+                <div class="camera">LG Electronics LM-X210(G)</div>
+                <div class="extra">אין מידע נוסף</div>
+            </div>
+        </div>
+        
+                <div class="time-gap">
+                    <span class="gap-arrow">⬇️</span>
+                    <span class="gap-badge">⏱ עברו 906 שעות</span>
+                    <span class="gap-arrow">⬆️</span>
+                </div>
+        <div class="event right">
+            <div class="dot" style="background:#e9c46a; box-shadow: 0 0 0 2px #e9c46a;"></div>
+            <div class="card" style="border-left: 7px solid #e9c46a; background: #e9c46a15;">
+                <div class="icon"><img class="device-icon" src="icons/android2.png"></div>
+                <div class="date" style="color:#e9c46a;">2023-03-17 10:07:24</div>
+                <div>20230317_100725.jpg</div>
+                <div class="camera">samsung SM-A125F</div>
+                <div class="extra">אין מידע נוסף</div>
+            </div>
+        </div>
+        
+                <div class="time-gap">
+                    <span class="gap-arrow">⬇️</span>
+                    <span class="gap-badge">⏱ עברו 3296 שעות</span>
+                    <span class="gap-arrow">⬆️</span>
+                </div>
+        <div class="event left">
+            <div class="dot" style="background:#f4a261; box-shadow: 0 0 0 2px #f4a261;"></div>
+            <div class="card" style="border-right: 7px solid #f4a261; background: #f4a26115;">
+                <div class="icon"><img class="device-icon" src="icons/android2.png"></div>
+                <div class="date" style="color:#f4a261;">2023-08-01 19:00:44</div>
+                <div>20230801_190044.jpg</div>
+                <div class="camera">samsung Galaxy A24</div>
+                <div class="extra">אין מידע נוסף</div>
+            </div>
+        </div>
+        
+                <div class="time-gap">
+                    <span class="gap-arrow">⬇️</span>
+                    <span class="gap-badge">⏱ עברו 40 שעות</span>
+                    <span class="gap-arrow">⬆️</span>
+                </div>
+        <div class="event right">
+            <div class="dot" style="background:#8338ec; box-shadow: 0 0 0 2px #8338ec;"></div>
+            <div class="card" style="border-left: 7px solid #8338ec; background: #8338ec15;">
+                <div class="icon"><img class="device-icon" src="icons/android2.png"></div>
+                <div class="date" style="color:#8338ec;">2023-08-03 11:41:33</div>
+                <div>20230803_114132.jpg</div>
+                <div class="camera">samsung Galaxy A24</div>
+                <div class="extra">📍 28.5288, 34.4699</div>
+            </div>
+        </div>
+        
+        <div class="event left">
+            <div class="dot" style="background:#8338ec; box-shadow: 0 0 0 2px #8338ec;"></div>
+            <div class="card" style="border-right: 7px solid #8338ec; background: #8338ec15;">
+                <div class="icon"><img class="device-icon" src="icons/android2.png"></div>
+                <div class="date" style="color:#8338ec;">2023-08-03 12:57:16</div>
+                <div>20230803_125716.jpg</div>
+                <div class="camera">samsung Galaxy A24</div>
+                <div class="extra">📍 29.4336, 34.8288</div>
+            </div>
+        </div>
+        
+    </div>
+    </body>
+    </html>
+    
