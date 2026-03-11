@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import os
 import shutil
+from report import create_report
 
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'icons'))
@@ -70,7 +71,8 @@ def analyze_images():
     # from report import create_report
     # report_html = create_report(images_data, map_html, timeline_html, analysis)
 
-    return map_html
+    report_html = create_report(images_data, map_html, timeline_html, analysis)
+    return report_html
 
 
 if __name__ == '__main__':

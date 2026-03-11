@@ -6,21 +6,26 @@ def create_report(images_data, map_html, timeline_html, analysis):
     analysis = analysis or {}
     now = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-    # הגנה מפני None בכל הרשימות
     insights = analysis.get("insights") or []
     unique_cameras = analysis.get("unique_cameras") or []
 
-    # יצירת רשימת תובנות
+    # תובנות
     insights_html = ""
     for insight in insights:
         insights_html += f"<li>{html_module.escape(str(insight))}</li>"
 
-    # רשימת מצלמות
+    if not insights_html:
+        insights_html = "<li>לא נמצאו תובנות להצגה</li>"
+
+    # מכשירים
     cameras_html = ""
     for cam in list(unique_cameras):
         cameras_html += f"<span class='badge'>{html_module.escape(str(cam))}</span> "
 
-    # יצירת טבלת תמונות
+    if not cameras_html:
+        cameras_html = "<p>לא נמצאו מכשירים להצגה</p>"
+
+    # טבלת תמונות
     images_table_html = ""
     for image in (images_data or []):
         filename = html_module.escape(str(image.get("filename", "לא ידוע")))
@@ -44,10 +49,13 @@ def create_report(images_data, map_html, timeline_html, analysis):
         </tr>
         """
 
-    # חישובים בטוחים
+    # ערכים בטוחים
     total_images = analysis.get("total_images", 0) or 0
     images_with_gps = analysis.get("images_with_gps", 0) or 0
     cameras_count = len(unique_cameras)
+
+    map_html = map_html or "<p>לא ניתן להציג מפה</p>"
+    timeline_html = timeline_html or "<p>לא ניתן להציג ציר זמן</p>"
 
     html = f"""
     <!DOCTYPE html>
@@ -60,14 +68,14 @@ def create_report(images_data, map_html, timeline_html, analysis):
             body {{
                 font-family: Arial, sans-serif;
                 max-width: 1200px;
-                margin: 0 auto;
+                margin: auto;
                 padding: 20px;
-                background: #f5f5f5;
+                background: #f3f6f9;
                 color: #222;
             }}
 
             .header {{
-                background: #1B4F72;
+                background: linear-gradient(135deg, #1B4F72, #2E86AB);
                 color: white;
                 padding: 30px;
                 border-radius: 10px;
@@ -76,29 +84,31 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
             .section {{
                 background: white;
-                padding: 20px;
-                margin: 20px 0;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                padding: 25px;
+                margin: 25px 0;
+                border-radius: 10px;
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+                position: relative;
+                overflow: hidden;
             }}
 
             .stats {{
                 display: flex;
-                gap: 20px;
                 justify-content: center;
+                gap: 20px;
                 flex-wrap: wrap;
             }}
 
             .stat-card {{
                 background: #E8F4FD;
-                padding: 15px 25px;
-                border-radius: 8px;
+                padding: 18px 28px;
+                border-radius: 10px;
                 text-align: center;
-                min-width: 140px;
+                min-width: 150px;
             }}
 
             .stat-number {{
-                font-size: 2em;
+                font-size: 2.2em;
                 font-weight: bold;
                 color: #1B4F72;
             }}
@@ -106,9 +116,9 @@ def create_report(images_data, map_html, timeline_html, analysis):
             .badge {{
                 background: #2E86AB;
                 color: white;
-                padding: 5px 10px;
-                border-radius: 15px;
-                margin: 3px;
+                padding: 6px 12px;
+                border-radius: 20px;
+                margin: 4px;
                 display: inline-block;
             }}
 
@@ -116,11 +126,10 @@ def create_report(images_data, map_html, timeline_html, analysis):
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 15px;
-                overflow: hidden;
             }}
 
             th, td {{
-                padding: 10px;
+                padding: 12px;
                 border-bottom: 1px solid #ddd;
                 text-align: right;
             }}
@@ -131,11 +140,17 @@ def create_report(images_data, map_html, timeline_html, analysis):
             }}
 
             tr:hover {{
-                background: #f9f9f9;
+                background: #f7f9fb;
             }}
 
             ul {{
                 padding-right: 20px;
+            }}
+
+            .map-container,
+            .timeline-container {{
+                width: 100%;
+                min-height: 420px;
             }}
 
             .footer {{
@@ -199,12 +214,16 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
         <div class="section">
             <h2>מפה</h2>
-            {map_html}
+            <div class="map-container">
+                {map_html}
+            </div>
         </div>
 
         <div class="section">
             <h2>ציר זמן</h2>
-            {timeline_html}
+            <div class="timeline-container">
+                {timeline_html}
+            </div>
         </div>
 
         <div class="section">
@@ -221,18 +240,17 @@ def create_report(images_data, map_html, timeline_html, analysis):
     """
 
     return html
-    
-# אל תשכחו להוסיף את הנתונים האמיתיים
-# if __name__ == "__main__":
 
-#     html = create_report(
+
+# if __name__ == "__main__":
+#     html_output = create_report(
 #         fake_images_data,
 #         fake_map_html,
 #         fake_timeline_html,
 #         fake_analysis
 #     )
-
+#
 #     with open("test_report.html", "w", encoding="utf-8") as f:
-#         f.write(html)
-
+#         f.write(html_output)
+#
 #     print("test_report.html נוצר בהצלחה")
