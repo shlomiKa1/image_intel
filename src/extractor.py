@@ -1,15 +1,15 @@
 from datetime import datetime
-
 from PIL import Image
 from pathlib import Path
 from PIL.ExifTags import TAGS
+from pillow_heif import register_heif_opener
+
+register_heif_opener()  # ← בראש הקובץ, לפני כל שימוש ב-PIL
 
 FORMATS = [
         "%Y:%m:%d %H:%M:%S",  # EXIF סטנדרטי
         "%Y-%m-%d %H:%M:%S",  # מקפים
         "%Y/%m/%d %H:%M:%S",  # לוכסנים
-        "%Y:%m:%d %H:%M:%S%z",  # עם timezone
-        "%Y-%m-%d %H:%M:%S%z",  # מקפים עם timezone
     ]
 
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.tiff', '.tif', '.heic'}
@@ -39,7 +39,6 @@ def dms_to_decimal(dms_tuple, ref):
         decimal = -decimal
     return decimal
 
-
 def has_gps(data: dict):
     """
     בודק אם קיים GPS לקובץ
@@ -51,7 +50,6 @@ def has_gps(data: dict):
     # מילון למפתחות של הקווים למיקום של המפה
     required_keys = {1, 2, 3, 4}
     return required_keys.issubset(data["GPSInfo"].keys()) if "GPSInfo" in data else False
-
 
 def latitude(data: dict):
     """
@@ -70,7 +68,6 @@ def latitude(data: dict):
     else:
         return None
 
-
 def longitude(data: dict):
     """
     מחלץ את קו האורך של המיקום של התמונה
@@ -87,7 +84,6 @@ def longitude(data: dict):
             return None
     else:
         return None
-
 
 def extract_datetime(data: dict):
     """
@@ -109,8 +105,6 @@ def extract_datetime(data: dict):
             continue
     return None
 
-
-
 def camera_make(data: dict):
     """
     מחלץ את היצרן של המכשיר שבו צולם התמונה
@@ -123,7 +117,6 @@ def camera_make(data: dict):
         return data["Make"].split("\x00")[0]
     except (KeyError, AttributeError):
         return None
-
 
 def camera_model(data: dict):
     """
@@ -138,7 +131,6 @@ def camera_model(data: dict):
     except (KeyError, AttributeError):
         return None
 
-
 def extract_metadata(image_path):
     """
     שולף EXIF מתמונה בודדת.
@@ -151,15 +143,24 @@ def extract_metadata(image_path):
               camera_make, camera_model, has_gps
     """
     path = Path(image_path)
+    data = None  # ← הגדר כאן מראש
 
-    # תיקון: טיפול בתמונה בלי EXIF - בלי זה, exif.items() נופל עם AttributeError
     try:
         with Image.open(image_path) as img:
-            exif = img._getexif()
+            if path.suffix.lower() == '.heic':
+                exif_raw = img.getexif()
+                data = {TAGS.get(k, k): v for k, v in exif_raw.items()}
+                gps_data = exif_raw.get_ifd(0x8825)
+                if gps_data:
+                    data["GPSInfo"] = {k: v for k, v in gps_data.items()}
+            else:
+                exif = img._getexif()
+                if exif is not None:
+                    data = {TAGS.get(k, k): v for k, v in exif.items()}
     except (OSError, IOError, AttributeError):
-        exif = None
+        data = None
 
-    if exif is None:
+    if data is None:
         return {
             "filename": path.name,
             "datetime": None,
@@ -170,13 +171,7 @@ def extract_metadata(image_path):
             "has_gps": False
         }
 
-    data = {}
-    for tag_id, value in exif.items():
-        tag = TAGS.get(tag_id, tag_id)
-        data[tag] = value
-    # תיקון: הוסר print(data) שהיה כאן - הדפיס את כל ה-EXIF הגולמי על כל תמונה
-
-    exif_dict = {
+    return {
         "filename": path.name,
         "datetime": extract_datetime(data),
         "latitude": latitude(data),
@@ -185,8 +180,6 @@ def extract_metadata(image_path):
         "camera_model": camera_model(data),
         "has_gps": has_gps(data)
     }
-    return exif_dict
-
 
 def extract_all(folder_path):
     """
