@@ -101,7 +101,35 @@
             color: white;
             box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
         }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            align-items: -flex-end;
+            text-align: right;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .radio-label {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 1em;
+        }
+
+        .radio-label input[type="radio"] {
+            display: inline;
+            accent-color: var(--accent-color);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
     </style>
+
 </head>
 <body>
     <div class="container">
@@ -109,25 +137,59 @@
         <p>מערכת סריקה וניתוח נתוני EXIF</p>
 
         <form action="/analyze" method="POST" enctype="multipart/form-data">
+             <!-- כפתורי radio -->
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="mode" value="files" checked onchange="setMode('files')">
+                    העלאת תמונות
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="mode" value="folder" onchange="setMode('folder')">
+                    העלאת תיקיות
+                </label>
+            </div>
             <div class="file-drop-area" id="drop-area">
                 <span class="file-msg" id="file-msg">לחץ כאן או גרור תמונות לכאן</span>
                 <span class="file-msg-sub" id="file-msg-sub">אפשר לבחור כמה תמונות יחד</span>
                 <input type="file" name="photos" id="file-input" multiple accept="image/*">
+                <input type="file" name="photos" id="folder-input" multiple webkitdirectory="image/*">
             </div>
 
             <button type="submit" class="submit-btn">התחל ניתוח מודיעיני</button>
         </form>
+        <button id="btn" onclick="cl()">Click</button>
     </div>
 
     <script>
+    let currentMode = 'files';
+
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === 'files') {
+            fileMsg.textContent = "לחץ כאן או גרור תמונות לכאן";
+            fileMsgSub.textContent = "אפשר לבחור כמה תמונות יחד";
+        } else {
+            fileMsg.textContent = "לחץ כאן או גרור תיקיות לכאן";
+            fileMsgSub.textContent = "אפשר לבחור כמה תיקיות יחד";
+        }
+        fileMsg.style.color = "#cbd5e1";
+    }
+
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('file-input');
+    const folderInput = document.getElementById('folder-input');
     const fileMsg = document.getElementById('file-msg');
     const fileMsgSub = document.getElementById('file-msg-sub');
-
     const filesMap = new Map();
 
-    dropArea.addEventListener('click', () => fileInput.click());
+    // לחיצה על קובייה לפי מצב
+    dropArea.addEventListener('click', () => {
+        if (currentMode === 'files') {
+            fileInput.click();
+        } else {
+            folderInput.click();
+        }
+    });
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
@@ -145,42 +207,72 @@
         dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
     });
 
+    // גרירה — זיהוי אוטומטי
+    dropArea.addEventListener('drop', (e) => {
+        const items = [...e.dataTransfer.items];
+        let hasDirectory = false;
+        for (const item of items) {
+            const entry = item.webkitGetAsEntry();
+            if (entry && entry.isDirectory) {
+                hasDirectory = true;
+                readDirectory(entry);
+            }
+        }
+        if (!hasDirectory) {
+            addFilesToList(e.dataTransfer.files);
+        }
+    });
+
+    function readDirectory(dirEntry) {
+        const reader = dirEntry.createReader();
+        reader.readEntries((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isFile) {
+                    entry.file((file) => {
+                        filesMap.set(file.name, file);
+                        const dt = new DataTransfer();
+                        filesMap.forEach(f => dt.items.add(f));
+                        fileInput.files = dt.files;
+                        updateFileName();
+                    });
+                }
+            });
+        });
+    }
+
     function addFilesToList(newFiles) {
         for (let i = 0; i < newFiles.length; i++) {
-            const file = newFiles[i];
-            filesMap.set(file.name, file);
+            filesMap.set(newFiles[i].name, newFiles[i]);
         }
-
         const dt = new DataTransfer();
-        filesMap.forEach((file) => {
-            dt.items.add(file);
-        });
-
+        filesMap.forEach(f => dt.items.add(f));
         fileInput.files = dt.files;
         updateFileName();
     }
 
-    dropArea.addEventListener('drop', (e) => {
-        addFilesToList(e.dataTransfer.files);
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) addFilesToList(e.target.files);
     });
 
-    fileInput.addEventListener('change', (e) => {
-        const selectedFiles = e.target.files;
-        if (selectedFiles.length > 0) {
-            addFilesToList(selectedFiles);
-        }
+    folderInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) addFilesToList(e.target.files);
     });
 
     function updateFileName() {
         const totalFiles = fileInput.files.length;
         if (totalFiles > 0) {
-            fileMsg.textContent = "נצברו " + totalFiles + " תמונות";
+            fileMsg.textContent = "נצברו " + totalFiles + " פריטים";
             fileMsg.style.color = "var(--accent-color)";
-            fileMsgSub.textContent = "אפשר להמשיך להוסיף, תמונות זהות הוחלפו אוטומטית";
+            fileMsgSub.textContent = "אפשר להמשיך להוסיף, פריטים זהים הוחלפו אוטומטית";
         } else {
-            fileMsg.textContent = "לחץ כאן או גרור תמונות לכאן";
+            if (currentMode === 'files') {
+                fileMsg.textContent = "לחץ כאן או גרור תמונות לכאן";
+                fileMsgSub.textContent = "אפשר לבחור כמה תמונות יחד";
+            } else {
+                fileMsg.textContent = "לחץ כאן או גרור תיקיות לכאן";
+                fileMsgSub.textContent = "אפשר לבחור כמה תיקיות יחד";
+            }
             fileMsg.style.color = "#cbd5e1";
-            fileMsgSub.textContent = "אפשר לבחור כמה תמונות יחד";
         }
     }
     </script>

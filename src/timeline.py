@@ -11,11 +11,11 @@ DAY_COLORS = [
 
 # מילון לסוגי איקוונים לכל סוג מכשיר
 ICONS = {
-    "apple": '<img class="device-icon" src="icons/apple.png">',
-    "iphone": '<img class="device-icon" src="icons/apple.png">',
-    "samsung": '<img class="device-icon" src="icons/android2.png">',
-    "xiaomi": '<img class="device-icon" src="icons/android2.png">',
-    "huawei": '<img class="device-icon" src="icons/android2.png">',
+    "apple": '<img class="device-icon" src="/icons/apple.png">',
+    "iphone": '<img class="device-icon" src="/icons/apple.png">',
+    "samsung": '<img class="device-icon" src="/icons/android2.png">',
+    "xiaomi": '<img class="device-icon" src="/icons/android.png">',
+    "huawei": '<img class="device-icon" src="/icons/android.png">',
 
     # SVG לשאר
     "canon": '<svg width="24" height="24" viewBox="0 0 24 24" fill="#555"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0-2a6 6 0 1 1 0 12A6 6 0 0 1 12 6zM2 8h2V6H2v2zm18-2v2h2V6h-2zM3 19h18v2H3v-2z"/></svg>',
@@ -40,7 +40,7 @@ def create_timeline(images_data: list) -> str | None:
 
     # אם אין תמונות
     if not dated_images:
-        return None
+        return "<h2>לא נמצאו תמונות עם תאריך</h2>"
     
     day_color = {} # מילון לצביעת ימים
 
