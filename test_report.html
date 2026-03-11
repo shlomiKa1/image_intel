@@ -1,0 +1,215 @@
+
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <title>Image Intel Report</title>
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #f5f5f5;
+                color: #222;
+            }
+
+            .header {
+                background: #1B4F72;
+                color: white;
+                padding: 30px;
+                border-radius: 10px;
+                text-align: center;
+            }
+
+            .section {
+                background: white;
+                padding: 20px;
+                margin: 20px 0;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .stats {
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .stat-card {
+                background: #E8F4FD;
+                padding: 15px 25px;
+                border-radius: 8px;
+                text-align: center;
+                min-width: 140px;
+            }
+
+            .stat-number {
+                font-size: 2em;
+                font-weight: bold;
+                color: #1B4F72;
+            }
+
+            .badge {
+                background: #2E86AB;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 15px;
+                margin: 3px;
+                display: inline-block;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                overflow: hidden;
+            }
+
+            th, td {
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+                text-align: right;
+            }
+
+            th {
+                background: #E8F4FD;
+                color: #1B4F72;
+            }
+
+            tr:hover {
+                background: #f9f9f9;
+            }
+
+            ul {
+                padding-right: 20px;
+            }
+
+            .footer {
+                text-align: center;
+                color: #888;
+                margin-top: 30px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="header">
+            <h1>Image Intel Report</h1>
+            <p>נוצר ב-10/03/2026 16:39</p>
+        </div>
+
+        <div class="section">
+            <h2>סיכום</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div>תמונות</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number">2</div>
+                    <div>עם GPS</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div>מכשירים</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>פירוט קבצים</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>שם קובץ</th>
+                        <th>מצלמה</th>
+                        <th>תאריך</th>
+                        <th>GPS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr>
+            <td>IMG_001.jpg</td>
+            <td>iPhone 13</td>
+            <td>2024:01:01 10:30:00</td>
+            <td>כן</td>
+        </tr>
+        
+        <tr>
+            <td>IMG_002.jpg</td>
+            <td>Canon EOS 80D</td>
+            <td>2024:01:01 11:00:00</td>
+            <td>לא</td>
+        </tr>
+        
+        <tr>
+            <td>IMG_003.jpg</td>
+            <td>Samsung Galaxy S22</td>
+            <td>2024:01:02 09:15:00</td>
+            <td>כן</td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>תובנות מרכזיות</h2>
+            <ul>
+                <li>רוב התמונות צולמו באותו יום</li><li>זוהו שלושה מכשירים שונים</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>מפה</h2>
+            
+    <div style="
+        height:300px;
+        background:#ddd;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:8px;
+        font-weight:bold;
+    ">
+        MAP PLACEHOLDER
+    </div>
+    
+        </div>
+
+        <div class="section">
+            <h2>ציר זמן</h2>
+            
+    <div style="
+        height:200px;
+        background:#eee;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:8px;
+        font-weight:bold;
+    ">
+        TIMELINE PLACEHOLDER
+    </div>
+    
+        </div>
+
+        <div class="section">
+            <h2>מכשירים</h2>
+            <span class='badge'>iPhone 13</span> <span class='badge'>Canon EOS 80D</span> <span class='badge'>Samsung Galaxy S22</span> 
+        </div>
+
+        <div class="footer">
+            Image Intel | האקתון 2025
+        </div>
+
+    </body>
+    </html>
+    
