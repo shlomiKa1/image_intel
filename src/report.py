@@ -24,7 +24,10 @@ def create_report(images_data, map_html, timeline_html, analysis):
     images_table_html = ""
     for image in (images_data or []):
         filename = html_module.escape(str(image.get("filename", "לא ידוע")))
-        camera = html_module.escape(str(image.get("camera", "לא ידוע")))
+        make = image.get("camera_make", "")
+        model = image.get("camera_model", "")
+        camera = f"{make} {model}".strip() or "לא ידוע"
+        camera = html_module.escape(camera)
         dt = html_module.escape(str(image.get("datetime", "לא ידוע")))
         has_gps = "כן" if image.get("has_gps") else "לא"
 
