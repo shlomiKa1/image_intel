@@ -71,7 +71,11 @@ def create_map(images_data):
         location=[avg_lat, avg_lon],
         zoom_start=8,
         width="100%",
-        height=500
+        height=500,
+        scrollWheelZoom=False
+    )
+    location_map.get_root().html.add_child(
+        folium.Element('<script>window.intel_map_id = null;</script>')
     )
 
     devices_colors = {}
