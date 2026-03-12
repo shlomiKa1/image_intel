@@ -1,7 +1,7 @@
 import folium
 from branca.element import Element
+from folium.plugins import AntPath
 
-# רשימת צבעים
 FOLIUM_COLORS = [
     "red", "blue", "green", "purple", "orange", "darkred",
     "lightred", "beige", "darkblue", "darkgreen", "cadetblue",
@@ -23,7 +23,6 @@ def get_images_with_gps(arr):
 
 def sort_by_time(arr):
     """ממיין את רשימת התמונות לפי זמן הצילום.
-    תמונות ללא שדה datetime ימוינו לתחילת הרשימה.
 
     :param arr: רשימת מילונים של תמונות
     :type arr: list
@@ -38,12 +37,13 @@ def get_avg(arr) -> tuple[float, float]:
 
     :param arr: רשימת תמונות עם נתוני GPS
     :type arr: list
-    :return: ממוצע קו רוחב וממוצע קו אורך, או (0.0, 0.0) אם הרשימה ריקה
+    :return: ממוצע קו רוחב וממוצע קו אורך
     :rtype: tuple[float, float]
     """
     arr_len = len(arr)
     if arr_len == 0:
         return 0.0, 0.0
+
     avg_lat = sum(img["latitude"] for img in arr) / arr_len
     avg_lng = sum(img["longitude"] for img in arr) / arr_len
     return avg_lat, avg_lng
@@ -54,7 +54,7 @@ def create_map(images_data):
 
     :param images_data: רשימת מילונים מ-extract_all
     :type images_data: list
-    :return: מחרוזת HTML של המפה, או None אם אין תמונות עם GPS
+    :return: HTML להטמעה של המפה, או None אם אין תמונות עם GPS
     :rtype: str | None
     """
     if not images_data:
@@ -67,8 +67,12 @@ def create_map(images_data):
     sort_by_time(images_with_gps)
     avg_lat, avg_lon = get_avg(images_with_gps)
 
-    # יצירת מפה שממורכזת על ממוצע המיקומים
-    location_map = folium.Map(location=[avg_lat, avg_lon], zoom_start=8)
+    location_map = folium.Map(
+        location=[avg_lat, avg_lon],
+        zoom_start=8,
+        width="100%",
+        height=500
+    )
 
     devices_colors = {}
     path_points = []
@@ -76,6 +80,7 @@ def create_map(images_data):
 
     for i, img in enumerate(images_with_gps, 1):
         model = img.get("camera_model", "unknown")
+
         if model not in devices_colors:
             devices_colors[model] = FOLIUM_COLORS[color_index % len(FOLIUM_COLORS)]
             color_index += 1
@@ -86,8 +91,8 @@ def create_map(images_data):
 
         popup_html = f"""
             <div style="font-family: Arial; min-width: 200px;">
-                <h4 style="margin-bottom: 10px; margin-top: 0px;">
-                    <i class="fa fa-camera"></i> {img.get('filename', 'Unknown')}
+                <h4 style="margin-bottom: 10px; margin-top: 0;">
+                    {img.get('filename', 'Unknown')}
                 </h4>
                 <b>Photo #:</b> {i}<br>
                 <b>Time:</b> {img.get('datetime', 'N/A')}<br>
@@ -103,17 +108,19 @@ def create_map(images_data):
         folium.Marker(
             [lat, lon],
             popup=popup_obj,
-            icon=folium.Icon(color=marker_color, icon='camera', prefix='fa')
+            icon=folium.Icon(color=marker_color, icon="camera", prefix="fa")
         ).add_to(location_map)
 
     if len(path_points) > 1:
-        folium.PolyLine(
+        AntPath(
             path_points,
             color="darkblue",
-            weight=3,
-            opacity=0.7,
-            dash_array='5, 5',
-            tooltip='Photo Route'
+            weight=4,
+            opacity=0.8,
+            delay=800,
+            dash_array=[10, 20],
+            pulse_color="white",
+            tooltip="מסלול כרונולוגי"
         ).add_to(location_map)
 
     legend_items = ""
@@ -135,10 +142,10 @@ def create_map(images_data):
 
     legend_html = f"""
     <div style="
-        position: fixed;
-        bottom: 40px;
-        right: 40px;
-        z-index: 9999;
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
         background-color: white;
         border: 2px solid gray;
         border-radius: 8px;
@@ -154,36 +161,4 @@ def create_map(images_data):
 
     location_map.get_root().html.add_child(Element(legend_html))
 
-    return location_map.get_root().render()
-
-
-if __name__ == "__main__":
-    fake_data = [
-        {
-            "filename": "test1.jpg",
-            "latitude": 32.0853,
-            "longitude": 34.7818,
-            "has_gps": True,
-            "camera_make": "Samsung",
-            "camera_model": "Galaxy S23",
-            "datetime": "2025-01-12 08:30:00",
-        },
-        {
-            "filename": "test2.jpg",
-            "latitude": 31.7683,
-            "longitude": 35.2137,
-            "has_gps": True,
-            "camera_make": "Apple",
-            "camera_model": "iPhone 15 Pro",
-            "datetime": "2025-01-13 09:00:00",
-        },
-    ]
-
-    html = create_map(fake_data)
-
-    if html is not None:
-        with open("test_map.html", "w", encoding="utf-8") as f:
-            f.write(html)
-        print("Map saved to test_map.html")
-    else:
-        print("No GPS images found.")
+    return location_map._repr_html_()
