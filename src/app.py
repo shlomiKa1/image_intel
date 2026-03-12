@@ -1,6 +1,11 @@
-from flask import Flask, render_template, request
 import os
 import shutil
+from analyzer import analyzer
+from extractor import extract_all
+from flask import Flask, render_template, request
+from map_view import create_map
+from report import create_report
+from timeline import create_timeline
 
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'icons'))
@@ -9,10 +14,6 @@ app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'ico
 def index():
     """דף הבית - טופס לבחירת תיקייה"""
     return render_template('index.html')
-#
-# @app.route("/avi")
-# def hello():
-#     return "hello avi"
 
 @app.route('/analyze', methods=['POST'])
 def analyze_images():
@@ -44,33 +45,22 @@ def analyze_images():
     else:
         return "לא נבחרו תמונות", 400
 
-    # """מקבל נתיב תיקייה, מריץ את כל המודולים, מחזיר דו"ח"""
-    # folder_path = request.form.get('folder_path')
-    #
-    # if not folder_path or not os.path.isdir(folder_path):
-    #     return "תיקייה לא נמצאה", 400
-
     # שלב 1: שליפת נתונים
-    from extractor import extract_all
     images_data = extract_all(folder_path)
 
     # שלב 2: יצירת מפה
-    from map_view import create_map
     map_html = create_map(images_data)
 
     # שלב 3: ציר זמן
-    from timeline import create_timeline
     timeline_html = create_timeline(images_data)
 
     # שלב 4: ניתוח
-    from analyzer import analyzer
     analysis = analyzer(images_data)
 
     # שלב 5: הרכבת דו"ח
-    # from report import create_report
-    # report_html = create_report(images_data, map_html, timeline_html, analysis)
+    report_html = create_report(images_data, map_html, timeline_html, analysis)
 
-    return map_html
+    return report_html
 
 
 if __name__ == '__main__':
