@@ -1,5 +1,6 @@
 import folium
 from branca.element import Element
+from folium.plugins import AntPath
 
 FOLIUM_COLORS = [
     "red", "blue", "green", "purple", "orange", "darkred",
@@ -111,13 +112,15 @@ def create_map(images_data):
         ).add_to(location_map)
 
     if len(path_points) > 1:
-        folium.PolyLine(
+        AntPath(
             path_points,
             color="darkblue",
-            weight=3,
-            opacity=0.7,
-            dash_array="5, 5",
-            tooltip="Photo Route"
+            weight=4,
+            opacity=0.8,
+            delay=800,
+            dash_array=[10, 20],
+            pulse_color="white",
+            tooltip="מסלול כרונולוגי"
         ).add_to(location_map)
 
     legend_items = ""
