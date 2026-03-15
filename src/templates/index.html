@@ -256,6 +256,11 @@
                 <input type="file" name="photos" id="folder-input" multiple webkitdirectory>
             </div>
 
+            <div id="preview-container" style="
+                display: flex; flex-wrap: wrap; gap: 8px;
+                margin-top: 15px; justify-content: center;
+            "></div>
+
             <button type="submit" class="submit-btn">הפעל סריקה מבצעית</button>
         </form>
     </div>
@@ -399,15 +404,31 @@
     folderInput.addEventListener('change', (e) => { if (e.target.files.length > 0) addFilesToList(e.target.files); });
 
     function updateFileName() {
-        const total = fileInput.files.length;
-        if (total > 0) {
-            fileMsg.textContent = "נקלטו " + total + " חומרי גלם במערכת";
-            fileMsg.style.color = "var(--accent-color)";
-            fileMsgSub.textContent = "המערכת מוכנה. ניתן להמשיך להזין חומרים נוספים.";
-        } else {
-            setMode(currentMode);
-        }
+    const total = fileInput.files.length;
+    if (total > 0) {
+        fileMsg.textContent = "נקלטו " + total + " חומרי גלם במערכת";
+        fileMsg.style.color = "var(--accent-color)";
+        fileMsgSub.textContent = "המערכת מוכנה. ניתן להמשיך להזין חומרים נוספים.";
+    } else {
+        setMode(currentMode);
     }
+
+    // ✅ הוסף כאן — Preview
+    const container = document.getElementById('preview-container');
+    container.innerHTML = '';
+    const previewFiles = Array.from(fileInput.files).slice(0, 12); // מקסימום 12
+    previewFiles.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid rgba(2,190,254,0.3);';
+            container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
     const form = document.getElementById('upload-form');
     const clientErrorBox = document.getElementById('client-error');
@@ -422,6 +443,18 @@
                 {transform:'translateX(10px)'},{transform:'translateX(0)'}
             ], {duration: 300});
         } else {
+             const allFiles = [
+                ...Array.from(fileInput.files),
+                ...Array.from(folderInput.files)
+            ];
+            const invalidFiles = allFiles.filter(f => !f.type.startsWith('image/'));
+            if (invalidFiles.length > 0) {
+                e.preventDefault();
+                clientErrorBox.textContent = `שגיאה: הקובץ "${invalidFiles[0].name}" אינו תמונה.`;
+                clientErrorBox.style.display = 'block';
+                return;
+            }
+
             clientErrorBox.style.display = 'none';
             submitBtn.textContent = 'מבצע סריקה, אנא המתן...';
             submitBtn.style.opacity = '0.7';

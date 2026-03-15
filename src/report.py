@@ -516,7 +516,16 @@ def create_report(images_data, map_html, timeline_html, analysis):
                 <div class="container">
 
                     <div class="section scroll-animate" id="details">
-                        <h2>פירוט נתונים</h2>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                            <h2 style="margin:0">פירוט נתונים</h2>
+                            <select id="camera-filter" onchange="filterTable(this.value)" style="
+                                padding: 8px 12px; border-radius: 8px;
+                                border: 1px solid #e2e8f0; font-size: 0.95em;">
+                                <option value="all">כל המכשירים</option>
+                                {''.join(f'<option value="{c}">{c}</option>' for c in unique_cameras)}
+                            </select>
+                        </div>
+                        
                         <div class="collapsible-content" id="details-content">
                         <table>
                             <thead>
@@ -643,6 +652,14 @@ def create_report(images_data, map_html, timeline_html, analysis):
                         mapDiv._leaflet_map.scrollWheelZoom.disable();
                     }}
                 }}
+            }}
+            function filterTable(camera) {{
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {{
+                    // עמודה 2 היא "מקור איסוף" (המצלמה)
+                    const camCell = row.cells[1].textContent.trim();
+                    row.style.display = (camera === 'all' || camCell.includes(camera)) ? '' : 'none';
+                }});
             }}
         </script>
     </body>

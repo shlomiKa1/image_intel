@@ -2,7 +2,7 @@ import os
 import shutil
 from flask import Flask, render_template, request, send_file
 
-# הייבואים שלך (וודא שהם נשארים)
+# הייבואים שלנו
 from analyzer import analyzer
 from extractor import extract_all
 from map_view import create_map
@@ -62,7 +62,7 @@ def analyze_images():
 
         file.save(save_path)
 
-    # כעת יש לנו תיקייה מוכנה עם כל החומר. אפשר להמשיך ללוגיקה שלך:
+    # כעת יש לנו תיקייה מוכנה עם כל החומר. אפשר להמשיך ללוגיקה שלנו
 
     # שלב 1: שליפת נתונים מתיקיית ה-uploads
     images_data = extract_all(temp_folder)
