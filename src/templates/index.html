@@ -20,16 +20,64 @@
             background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #050505 70%);
             color: var(--text-color);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            backdrop-filter: blur(10px);
         }
+
+        /* ===== GLOBE HERO ===== */
+        .globe-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0 0;
+            position: relative;
+        }
+
+        .globe-wrap {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin-bottom: 18px;
+        }
+
+        #globe-canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(2,190,254,0.3), 0 0 100px rgba(4,93,254,0.15);
+            display: block;
+        }
+
+        .glow-ring {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 196px; height: 196px;
+            border-radius: 50%;
+            border: 1px solid rgba(2,190,254,0.2);
+            animation: pulse 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .glow-ring-2 {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 216px; height: 216px;
+            border-radius: 50%;
+            border: 1px solid rgba(2,190,254,0.08);
+            animation: pulse 3s ease-in-out infinite 1.5s;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        /* ===== END GLOBE ===== */
 
         .container {
             background-color: var(--container-bg);
-            padding: 50px;
+            padding: 30px 50px 50px;
             border-radius: 4px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -95,9 +143,7 @@
             color: #64748b;
         }
 
-        input[type="file"] {
-            display: none;
-        }
+        input[type="file"] { display: none; }
 
         .submit-btn {
             background-color: var(--accent-color);
@@ -161,15 +207,22 @@
             transition: all 0.3s ease;
         }
 
-        .error-box.show-server-error {
-            display: block;
-        }
+        .error-box.show-server-error { display: block; }
     </style>
 </head>
 <body>
+
+    <!-- גלובוס מסתובב -->
+    <div class="globe-hero">
+        <div class="globe-wrap">
+            <div class="glow-ring"></div>
+            <div class="glow-ring-2"></div>
+            <canvas id="globe-canvas" width="180" height="180"></canvas>
+        </div>
+    </div>
+
     <div class="container">
         <h1>Image Intel</h1>
-        <h2 class="slogan">לראות את הבלתי נראה<br>ולעשות את הבלתי אפשרי</h2>
 
         <p class="desc">
             מערכת מבצעית לסריקה, פענוח וניתוח נתוני תקשורת חזותית (EXIF).<br>
@@ -177,9 +230,7 @@
         </p>
 
         {% if error_message %}
-        <div class="error-box show-server-error">
-            {{ error_message }}
-        </div>
+        <div class="error-box show-server-error">{{ error_message }}</div>
         {% endif %}
 
         <div class="error-box" id="client-error">
@@ -210,7 +261,76 @@
     </div>
 
     <script>
+    /* ===== GLOBE ===== */
+    (function() {
+        const canvas = document.getElementById('globe-canvas');
+        const ctx = canvas.getContext('2d');
+        const W = 180, R = 85;
+        let angle = 0;
+
+        function pt(lat, lon, rot) {
+            const phi = lat * Math.PI / 180;
+            const lam = (lon + rot) * Math.PI / 180;
+            return {
+                x: W/2 + R * Math.cos(phi) * Math.sin(lam),
+                y: W/2 - R * Math.sin(phi),
+                z: R * Math.cos(phi) * Math.cos(lam)
+            };
+        }
+
+        function draw(rot) {
+            ctx.clearRect(0, 0, W, W);
+            const g = ctx.createRadialGradient(W*0.4, W*0.35, 5, W/2, W/2, R);
+            g.addColorStop(0, '#0a2a5e');
+            g.addColorStop(0.6, '#050f28');
+            g.addColorStop(1, '#020810');
+            ctx.beginPath(); ctx.arc(W/2, W/2, R, 0, Math.PI*2);
+            ctx.fillStyle = g; ctx.fill();
+
+            for (let lat = -75; lat <= 75; lat += 15) {
+                ctx.beginPath(); let first = true;
+                for (let lon = 0; lon <= 360; lon += 4) {
+                    const p = pt(lat, lon, rot);
+                    if (p.z <= 0) { first = true; continue; }
+                    first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+                    first = false;
+                }
+                ctx.strokeStyle = 'rgba(2,190,254,0.3)'; ctx.lineWidth = 0.5; ctx.stroke();
+            }
+
+            for (let lon = 0; lon < 360; lon += 15) {
+                ctx.beginPath(); let first = true;
+                for (let lat = -90; lat <= 90; lat += 4) {
+                    const p = pt(lat, lon, rot);
+                    if (p.z <= 0) { first = true; continue; }
+                    first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+                    first = false;
+                }
+                ctx.strokeStyle = 'rgba(2,190,254,0.2)'; ctx.lineWidth = 0.5; ctx.stroke();
+            }
+
+            const eg = ctx.createRadialGradient(W/2, W/2, R*0.65, W/2, W/2, R);
+            eg.addColorStop(0, 'rgba(2,190,254,0)');
+            eg.addColorStop(1, 'rgba(2,190,254,0.2)');
+            ctx.beginPath(); ctx.arc(W/2, W/2, R, 0, Math.PI*2);
+            ctx.fillStyle = eg; ctx.fill();
+
+            ctx.beginPath(); ctx.arc(W/2, W/2, R, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(2,190,254,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+        }
+
+        (function animate() { angle += 0.2; draw(angle); requestAnimationFrame(animate); })();
+    })();
+    /* ===== END GLOBE ===== */
+
+    /* ===== FORM LOGIC ===== */
     let currentMode = 'files';
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const folderInput = document.getElementById('folder-input');
+    const fileMsg = document.getElementById('file-msg');
+    const fileMsgSub = document.getElementById('file-msg-sub');
+    const filesMap = new Map();
 
     function setMode(mode) {
         currentMode = mode;
@@ -224,50 +344,28 @@
         fileMsg.style.color = "#cbd5e1";
     }
 
-    const dropArea = document.getElementById('drop-area');
-    const fileInput = document.getElementById('file-input');
-    const folderInput = document.getElementById('folder-input');
-    const fileMsg = document.getElementById('file-msg');
-    const fileMsgSub = document.getElementById('file-msg-sub');
-    const filesMap = new Map();
-
     dropArea.addEventListener('click', () => {
-        if (currentMode === 'files') {
-            fileInput.click();
-        } else {
-            folderInput.click();
-        }
+        currentMode === 'files' ? fileInput.click() : folderInput.click();
     });
 
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
-    });
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
-    });
+    ['dragenter','dragover','dragleave','drop'].forEach(ev =>
+        dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); })
+    );
+    ['dragenter','dragover'].forEach(ev =>
+        dropArea.addEventListener(ev, () => dropArea.classList.add('dragover'))
+    );
+    ['dragleave','drop'].forEach(ev =>
+        dropArea.addEventListener(ev, () => dropArea.classList.remove('dragover'))
+    );
 
     dropArea.addEventListener('drop', (e) => {
         const items = [...e.dataTransfer.items];
-        let hasDirectory = false;
+        let hasDir = false;
         for (const item of items) {
             const entry = item.webkitGetAsEntry();
-            if (entry && entry.isDirectory) {
-                hasDirectory = true;
-                readDirectory(entry);
-            }
+            if (entry && entry.isDirectory) { hasDir = true; readDirectory(entry); }
         }
-        if (!hasDirectory) {
-            addFilesToList(e.dataTransfer.files);
-        }
+        if (!hasDir) addFilesToList(e.dataTransfer.files);
     });
 
     function readDirectory(dirEntry) {
@@ -283,34 +381,27 @@
                         updateFileName();
                     });
                 } else if (entry.isDirectory) {
-                    readDirectory(entry); // קריאה רקורסיבית לתתי-תיקיות
+                    readDirectory(entry);
                 }
             });
         });
     }
 
     function addFilesToList(newFiles) {
-        for (let i = 0; i < newFiles.length; i++) {
-            filesMap.set(newFiles[i].name, newFiles[i]);
-        }
+        for (let i = 0; i < newFiles.length; i++) filesMap.set(newFiles[i].name, newFiles[i]);
         const dt = new DataTransfer();
         filesMap.forEach(f => dt.items.add(f));
         fileInput.files = dt.files;
         updateFileName();
     }
 
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) addFilesToList(e.target.files);
-    });
-
-    folderInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) addFilesToList(e.target.files);
-    });
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) addFilesToList(e.target.files); });
+    folderInput.addEventListener('change', (e) => { if (e.target.files.length > 0) addFilesToList(e.target.files); });
 
     function updateFileName() {
-        const totalFiles = fileInput.files.length;
-        if (totalFiles > 0) {
-            fileMsg.textContent = "נקלטו " + totalFiles + " חומרי גלם במערכת";
+        const total = fileInput.files.length;
+        if (total > 0) {
+            fileMsg.textContent = "נקלטו " + total + " חומרי גלם במערכת";
             fileMsg.style.color = "var(--accent-color)";
             fileMsgSub.textContent = "המערכת מוכנה. ניתן להמשיך להזין חומרים נוספים.";
         } else {
@@ -318,7 +409,6 @@
         }
     }
 
-    // --- מערכת חסימת הטופס ---
     const form = document.getElementById('upload-form');
     const clientErrorBox = document.getElementById('client-error');
     const submitBtn = document.querySelector('.submit-btn');
@@ -327,14 +417,10 @@
         if (fileInput.files.length === 0 && folderInput.files.length === 0) {
             e.preventDefault();
             clientErrorBox.style.display = 'block';
-
             clientErrorBox.animate([
-                { transform: 'translateX(0)' },
-                { transform: 'translateX(-10px)' },
-                { transform: 'translateX(10px)' },
-                { transform: 'translateX(0)' }
-            ], { duration: 300 });
-
+                {transform:'translateX(0)'},{transform:'translateX(-10px)'},
+                {transform:'translateX(10px)'},{transform:'translateX(0)'}
+            ], {duration: 300});
         } else {
             clientErrorBox.style.display = 'none';
             submitBtn.textContent = 'מבצע סריקה, אנא המתן...';
