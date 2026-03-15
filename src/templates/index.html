@@ -2,57 +2,75 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <!-- תיקון: היה initial-width=1.0 במקום initial-scale=1.0 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Intel - מודיעין חזותי</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --container-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-color: #38bdf8;
-            --accent-hover: #0284c7;
-            --border-color: #475569;
+            --bg-color: #050505;
+            --container-bg: rgba(15, 23, 42, 0.75);
+            --text-color: #e2e8f0;
+            --accent-color: #02befe;
+            --accent-hover: #045dfe;
+            --border-color: #334155;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #050505 70%);
             color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            backdrop-filter: blur(10px);
         }
 
         .container {
             background-color: var(--container-bg);
             padding: 50px;
-            border-radius: 16px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             width: 100%;
             max-width: 550px;
             text-align: center;
+            backdrop-filter: blur(15px);
         }
 
         h1 {
-            color: var(--accent-color);
-            font-size: 2.8em;
-            margin-bottom: 10px;
+            background: linear-gradient(90deg,#9766FF,#628CFE 60.48%,#6575FF 62.58%,#045dfe 83.92%,#02befe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3.5em;
+            margin-bottom: 5px;
             margin-top: 0;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            font-weight: 800;
         }
 
-        p {
-            color: #94a3b8;
-            font-size: 1.1em;
-            margin-bottom: 40px;
+        .slogan {
+            color: #cbd5e1;
+            font-weight: 400;
+            font-size: 1.3em;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            letter-spacing: 1px;
+        }
+
+        .desc {
+            color: #64748b;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            padding: 0 15px;
         }
 
         .file-drop-area {
             border: 2px dashed var(--border-color);
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 50px 20px;
             margin-bottom: 25px;
             transition: all 0.3s ease;
@@ -62,7 +80,7 @@
 
         .file-drop-area:hover, .file-drop-area.dragover {
             border-color: var(--accent-color);
-            background-color: rgba(56, 189, 248, 0.08);
+            background-color: rgba(2, 190, 254, 0.05);
         }
 
         .file-msg {
@@ -83,29 +101,31 @@
 
         .submit-btn {
             background-color: var(--accent-color);
-            color: #0f172a;
+            color: #000;
             border: none;
-            padding: 15px 30px;
+            padding: 16px 30px;
             font-size: 1.2em;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            margin-top: 10px;
         }
 
         .submit-btn:hover {
             background-color: var(--accent-hover);
             color: white;
-            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+            box-shadow: 0 0 20px rgba(2, 190, 254, 0.5);
+            transform: translateY(-2px);
         }
 
         .radio-group {
             display: flex;
             flex-direction: column;
-            align-items: -flex-end;
+            align-items: flex-start;
             text-align: right;
             gap: 10px;
             margin-bottom: 20px;
@@ -128,34 +148,64 @@
             height: 16px;
             cursor: pointer;
         }
-    </style>
 
+        .error-box {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #f87171;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 1.05em;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .error-box.show-server-error {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Image Intel</h1>
-        <p>מערכת סריקה וניתוח נתוני EXIF</p>
+        <h2 class="slogan">לראות את הבלתי נראה<br>ולעשות את הבלתי אפשרי</h2>
 
-        <form action="/analyze" method="POST" enctype="multipart/form-data">
-             <!-- כפתורי radio -->
+        <p class="desc">
+            מערכת מבצעית לסריקה, פענוח וניתוח נתוני תקשורת חזותית (EXIF).<br>
+            הזן חומרי גלם לחשיפת נתונים סמויים ובניית תמונת מצב מודיעינית.
+        </p>
+
+        {% if error_message %}
+        <div class="error-box show-server-error">
+            {{ error_message }}
+        </div>
+        {% endif %}
+
+        <div class="error-box" id="client-error">
+            שגיאה: חובה להזין חומרי גלם או ספריות יעד לפני תחילת הסריקה המבצעית.
+        </div>
+
+        <form id="upload-form" action="/analyze" method="POST" enctype="multipart/form-data">
             <div class="radio-group">
                 <label class="radio-label">
                     <input type="radio" name="mode" value="files" checked onchange="setMode('files')">
-                    העלאת תמונות
+                    הזנת חומרי גלם (קבצים)
                 </label>
                 <label class="radio-label">
                     <input type="radio" name="mode" value="folder" onchange="setMode('folder')">
-                    העלאת תיקיות
+                    סריקת ספריות יעד (תיקיות)
                 </label>
             </div>
+
             <div class="file-drop-area" id="drop-area">
-                <span class="file-msg" id="file-msg">לחץ כאן או גרור תמונות לכאן</span>
-                <span class="file-msg-sub" id="file-msg-sub">אפשר לבחור כמה תמונות יחד</span>
+                <span class="file-msg" id="file-msg">העבר חומרי גלם לכאן או לחץ לבחירה</span>
+                <span class="file-msg-sub" id="file-msg-sub">ניתן להזין מספר קבצים במקביל</span>
                 <input type="file" name="photos" id="file-input" multiple accept="image/*">
-                <input type="file" name="photos" id="folder-input" multiple webkitdirectory="image/*">
+                <input type="file" name="photos" id="folder-input" multiple webkitdirectory>
             </div>
 
-            <button type="submit" class="submit-btn">התחל ניתוח מודיעיני</button>
+            <button type="submit" class="submit-btn">הפעל סריקה מבצעית</button>
         </form>
     </div>
 
@@ -165,11 +215,11 @@
     function setMode(mode) {
         currentMode = mode;
         if (mode === 'files') {
-            fileMsg.textContent = "לחץ כאן או גרור תמונות לכאן";
-            fileMsgSub.textContent = "אפשר לבחור כמה תמונות יחד";
+            fileMsg.textContent = "העבר חומרי גלם לכאן או לחץ לבחירה";
+            fileMsgSub.textContent = "ניתן להזין מספר קבצים במקביל";
         } else {
-            fileMsg.textContent = "לחץ כאן או גרור תיקיות לכאן";
-            fileMsgSub.textContent = "אפשר לבחור כמה תיקיות יחד";
+            fileMsg.textContent = "העבר ספריות יעד לכאן או לחץ לבחירה";
+            fileMsgSub.textContent = "המערכת תסרוק את כלל התוכן בתיקייה";
         }
         fileMsg.style.color = "#cbd5e1";
     }
@@ -181,7 +231,6 @@
     const fileMsgSub = document.getElementById('file-msg-sub');
     const filesMap = new Map();
 
-    // לחיצה על קובייה לפי מצב
     dropArea.addEventListener('click', () => {
         if (currentMode === 'files') {
             fileInput.click();
@@ -206,7 +255,6 @@
         dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
     });
 
-    // גרירה — זיהוי אוטומטי
     dropArea.addEventListener('drop', (e) => {
         const items = [...e.dataTransfer.items];
         let hasDirectory = false;
@@ -234,6 +282,8 @@
                         fileInput.files = dt.files;
                         updateFileName();
                     });
+                } else if (entry.isDirectory) {
+                    readDirectory(entry); // קריאה רקורסיבית לתתי-תיקיות
                 }
             });
         });
@@ -260,20 +310,38 @@
     function updateFileName() {
         const totalFiles = fileInput.files.length;
         if (totalFiles > 0) {
-            fileMsg.textContent = "נצברו " + totalFiles + " פריטים";
+            fileMsg.textContent = "נקלטו " + totalFiles + " חומרי גלם במערכת";
             fileMsg.style.color = "var(--accent-color)";
-            fileMsgSub.textContent = "אפשר להמשיך להוסיף, פריטים זהים הוחלפו אוטומטית";
+            fileMsgSub.textContent = "המערכת מוכנה. ניתן להמשיך להזין חומרים נוספים.";
         } else {
-            if (currentMode === 'files') {
-                fileMsg.textContent = "לחץ כאן או גרור תמונות לכאן";
-                fileMsgSub.textContent = "אפשר לבחור כמה תמונות יחד";
-            } else {
-                fileMsg.textContent = "לחץ כאן או גרור תיקיות לכאן";
-                fileMsgSub.textContent = "אפשר לבחור כמה תיקיות יחד";
-            }
-            fileMsg.style.color = "#cbd5e1";
+            setMode(currentMode);
         }
     }
+
+    // --- מערכת חסימת הטופס ---
+    const form = document.getElementById('upload-form');
+    const clientErrorBox = document.getElementById('client-error');
+    const submitBtn = document.querySelector('.submit-btn');
+
+    form.addEventListener('submit', function(e) {
+        if (fileInput.files.length === 0 && folderInput.files.length === 0) {
+            e.preventDefault();
+            clientErrorBox.style.display = 'block';
+
+            clientErrorBox.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-10px)' },
+                { transform: 'translateX(10px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 300 });
+
+        } else {
+            clientErrorBox.style.display = 'none';
+            submitBtn.textContent = 'מבצע סריקה, אנא המתן...';
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'wait';
+        }
+    });
     </script>
 </body>
 </html>

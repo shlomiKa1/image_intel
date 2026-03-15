@@ -1,52 +1,60 @@
 import os
 import shutil
+from flask import Flask, render_template, request
+
+# הייבואים שלך (וודא שהם נשארים)
 from analyzer import analyzer
 from extractor import extract_all
-from flask import Flask, render_template, request
 from map_view import create_map
 from report import create_report
 from timeline import create_timeline
 
-
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'icons'))
+
 
 @app.route('/')
 def index():
-    """דף הבית - טופס לבחירת תיקייה"""
-    return render_template('index.html')
+    """דף הבית - טופס לבחירת קבצים ותיקיות"""
+    # חשוב להעביר error_message=None כברירת מחדל
+    return render_template('index.html', error_message=None)
+
 
 @app.route('/analyze', methods=['POST'])
 def analyze_images():
-    folder_path = request.form.get('folder_path')
+    # כל הקבצים (בין אם נבחרו כתמונות בודדות ובין אם מתוך תיקייה שלמה) יגיעו לכאן
     files = request.files.getlist("photos")
 
-    if folder_path and os.path.isdir(folder_path):
-        print(f"✅ תיקייה נמצאה: {folder_path}")
-        pass
+    # בדיקת Validation בצד השרת
+    if not files or files[0].filename == '':
+        return render_template('index.html', error_message="שגיאה: המערכת לא קיבלה קבצים לניתוח. אנא נסה שנית.")
 
-    elif files and files[0].filename != '':
-        print(f"✅ קבצים התקבלו: {len(files)}")
+    print(f"✅ קבצים התקבלו: {len(files)}")
 
-        temp_folder = "uploads"
-        if os.path.exists(temp_folder):
-            shutil.rmtree(temp_folder)
-        os.makedirs(temp_folder)
+    # הכנת תיקיית uploads
+    temp_folder = "uploads"
+    if os.path.exists(temp_folder):
+        shutil.rmtree(temp_folder)
+    os.makedirs(temp_folder)
 
-        for file in files:
-            if not file.filename:  # ← דלג על ריקים
-                continue
-            clean_filename = file.filename.replace('\\', '/').lstrip('/')
-            save_path = os.path.join(temp_folder, clean_filename)
-            dir_name = os.path.dirname(save_path)
-            if dir_name:
-                os.makedirs(dir_name, exist_ok=True)
-            file.save(save_path)
-        folder_path = temp_folder
-    else:
-        return "לא נבחרו תמונות", 400
+    # שמירת כל הקבצים
+    for file in files:
+        if not file.filename:
+            continue
 
-    # שלב 1: שליפת נתונים
-    images_data = extract_all(folder_path)
+        # חשוב: שומר על מבנה התיקיות הפנימי אם המשתמש העלה תיקייה שלמה
+        clean_filename = file.filename.replace('\\', '/').lstrip('/')
+        save_path = os.path.join(temp_folder, clean_filename)
+
+        dir_name = os.path.dirname(save_path)
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
+
+        file.save(save_path)
+
+    # כעת יש לנו תיקייה מוכנה עם כל החומר. אפשר להמשיך ללוגיקה שלך:
+
+    # שלב 1: שליפת נתונים מתיקיית ה-uploads
+    images_data = extract_all(temp_folder)
 
     # שלב 2: יצירת מפה
     map_html = create_map(images_data)
