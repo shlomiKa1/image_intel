@@ -12,18 +12,39 @@ def create_report(images_data, map_html, timeline_html, analysis):
     images_with_gps = analysis.get("images_with_gps", 0) or 0
     cameras_count = len(unique_cameras)
 
+    # הפקת רשימת ערים וימים ייחודיים לטובת הסינונים הנופלים
+    unique_cities = set()
+    unique_dates = set()
+    for img in (images_data or []):
+        city = img.get("city_name", "לא ידוע")
+        if city and city != "מיקום לא אותר" and city != "לא ידוע":
+            unique_cities.add(city)
+
+        date = img.get("clean_date", "לא ידוע")
+        if date and date != "לא ידוע":
+            unique_dates.add(date)
+
+    unique_cities = sorted(list(unique_cities))
+    unique_dates = sorted(list(unique_dates), reverse=True)
+
+    # --- תובנות ---
     insights_html = ""
     for insight in insights:
-        insights_html += f"<li class='insight-item'>{html_module.escape(str(insight))}</li>"
+        # ניקוי אימוג'ים אם נשארו במקרה במחרוזת
+        clean_insight = str(insight).replace("⚠️", "").replace("⚡", "").replace("🕵️‍♂️", "").replace("🌙", "").replace(
+            "👀", "").strip()
+        insights_html += f"<li class='insight-item'>{html_module.escape(clean_insight)}</li>"
     if not insights_html:
         insights_html = "<li class='insight-item'>לא נמצאו תובנות חריגות להצגה</li>"
 
+    # --- מכשירים ---
     cameras_badges_html = ""
     for cam in list(unique_cameras):
         cameras_badges_html += f"<span class='device-badge'>{html_module.escape(str(cam))}</span>"
     if not cameras_badges_html:
         cameras_badges_html = "<p style='color:#64748b'>לא נמצאו מכשירים</p>"
 
+    # --- טבלת תמונות ---
     images_table_html = ""
     for image in (images_data or []):
         filename = html_module.escape(str(image.get("filename", "לא ידוע")))
@@ -41,12 +62,16 @@ def create_report(images_data, map_html, timeline_html, analysis):
         else:
             dt_text = html_module.escape(dt)
 
+        clean_date = html_module.escape(str(image.get("clean_date", "לא ידוע")))
+        city = html_module.escape(str(image.get("city_name", "לא ידוע")))
+
         lat = image.get("latitude")
         lon = image.get("longitude")
 
+        # --- תיקון הקישור לגוגל מפות והתצוגה שביקשת ---
         if image.get("has_gps") and lat and lon:
-            maps_url = f"http://googleusercontent.com/maps.google.com/maps?q={lat},{lon}"
-            has_gps = f"<a href='{maps_url}' target='_blank' style='color:#0A84FF; font-weight:600; text-decoration:none;'>צפה במפה</a>"
+            maps_url = f"https://www.google.com/maps?q={lat},{lon}"
+            has_gps = f"<span style='color:#1d1d1f; font-weight:600;'>עיר / אזור: {city}</span><br><a href='{maps_url}' target='_blank' style='color:#0A84FF; font-weight:600; text-decoration:none;'>📍 למיקום המדוייק</a>"
             gps_plain_text = "אותר"
         else:
             has_gps = "<span style='color:#94a3b8;'>חסר מיקום</span>"
@@ -58,12 +83,12 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
         detections_html = "<div class='detections-list'>"
         for det in ai_detections:
-            # הסרת אימוג'ים - רק טקסט נקי וברור
+            # ללא אימוג'ים
             detections_html += f"<div class='det-item'>{html_module.escape(str(det))}</div>"
         detections_html += "</div>"
 
         # עמודת הנתונים החבויים לטובת חיפוש חופשי יעיל
-        hidden_search_data = f"{filename} {camera} {dt_text} {' '.join(ai_detections)}"
+        hidden_search_data = f"{filename} {camera} {dt_text} {city} {' '.join(ai_detections)}"
 
         annotated_url = image.get("annotated_url")
         if annotated_url:
@@ -89,7 +114,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
             <td class="col-detections">{detections_html}</td>
             <td><span class="camera-tag">{camera}</span></td>
             <td dir="ltr" style="text-align: right;">{dt_text}</td>
-            <td>{has_gps}<span style="display:none;" class="search-data-hidden">{hidden_search_data} {gps_plain_text}</span></td>
+            <td>{has_gps}<span style="display:none;" class="search-data-hidden">{hidden_search_data} {gps_plain_text}</span><span style="display:none;" class="date-hidden">{clean_date}</span><span style="display:none;" class="city-hidden">{city}</span></td>
         </tr>
         """
 
@@ -106,6 +131,9 @@ def create_report(images_data, map_html, timeline_html, analysis):
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Image Intel Report</title>
         <style>
+            /* ייבוא הפונט הישן עבור הכותרות */
+            @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap');
+
             :root {{
                 --sidebar-bg: #0b1121;
                 --sidebar-btn: #151c2c;
@@ -123,23 +151,24 @@ def create_report(images_data, map_html, timeline_html, analysis):
             body {{
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                 color: var(--text-dark);
-                margin: 0;
-                padding: 0;
-                display: flex;
+                margin: 0; padding: 0; display: flex;
                 background-color: var(--bg-light);
                 overflow-x: hidden;
                 letter-spacing: 0.01em;
             }}
 
+            /* החלת הפונט הקודם (Heebo) רק על הכותרות הראשיות */
+            h1, h2, .sidebar-logo {{ font-family: 'Heebo', sans-serif !important; }}
+
             .hero-bg-wrapper {{ position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: -2; overflow: hidden; }}
             .earth-background {{ width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1920&auto=format&fit=crop'); background-size: cover; background-position: center; background-attachment: fixed; }}
             .earth-background::after {{ content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(circle at 20% 50%, rgba(10,132,255,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99,102,241,0.1) 0%, transparent 40%), radial-gradient(circle at 60% 80%, rgba(16,185,129,0.08) 0%, transparent 35%); }}
-            .overlay {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(5,5,5,0.6), rgba(5,5,5,0.95)); z-index: -1; }}
+            .overlay {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(5,5,5,0.4), rgba(5,5,5,0.95)); z-index: -1; }}
 
             .sidebar {{ width: 260px; background-color: var(--sidebar-bg); height: 100vh; position: fixed; right: 0; top: 0; padding: 40px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; z-index: 100; border-left: 1px solid rgba(255,255,255,0.05); box-shadow: -5px 0 20px rgba(0,0,0,0.5); }}
             .sidebar-logo {{ font-size: 2.2em; font-weight: 800; color: var(--brand-blue); margin-bottom: 30px; text-align: center; line-height: 1.1; }}
-            .sidebar-logo span {{ display: block; font-size: 0.4em; font-weight: 500; color: #94a3b8; margin-top: 5px; }}
-            .sidebar a {{ color: #e2e8f0; text-decoration: none; font-size: 1.05em; font-weight: 500; padding: 15px 20px; border-radius: 12px; background-color: var(--sidebar-btn); transition: all 0.3s; text-align: right; }}
+            .sidebar-logo span {{ display: block; font-size: 0.4em; font-weight: 500; color: #94a3b8; margin-top: 5px; font-family: -apple-system, BlinkMacSystemFont, sans-serif !important; }}
+            .sidebar a {{ color: #e2e8f0; text-decoration: none; font-size: 1.05em; font-weight: 500; padding: 15px 20px; border-radius: 12px; background-color: var(--sidebar-btn); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); text-align: right; border: 1px solid transparent; }}
             .sidebar a:hover {{ background-color: var(--sidebar-btn-hover); color: white; transform: translateX(-5px); }}
 
             .main-content {{ margin-right: 260px; flex-grow: 1; width: calc(100% - 260px); position: relative; }}
@@ -162,7 +191,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
             table {{ width: 100%; border-collapse: separate; border-spacing: 0; }}
             th, td {{ padding: 18px 20px; text-align: right; border-bottom: 1px solid #f1f5f9; vertical-align: top; }}
-            th {{ color: var(--brand-blue); font-weight: 700; font-size: 1.05em; background-color: #f8fafc; }}
+            th {{ color: var(--brand-blue); font-weight: 700; font-size: 1.05em; background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; }}
             th:first-child {{ border-top-right-radius: 12px; border-bottom-right-radius: 12px; }}
             th:last-child  {{ border-top-left-radius:  12px; border-bottom-left-radius:  12px; }}
             td {{ color: #1d1d1f; font-weight: 500; font-size: 15px; }}
@@ -171,7 +200,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
             .col-visual {{ width: 220px; }}
             .col-detections {{ width: 280px; }}
 
-            .img-thumb-box {{ width: 100%; height: 120px; background: #f1f5f9; border: 1px solid #d2d2d7; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; transition: all 0.2s; }}
+            .img-thumb-box {{ width: 100%; height: 120px; background: #f1f5f9; border: 1px solid #d2d2d7; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s; }}
             .img-thumb-box:hover {{ border-color: var(--brand-blue); transform: scale(1.02); }}
             .img-thumb-box img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
 
@@ -186,33 +215,33 @@ def create_report(images_data, map_html, timeline_html, analysis):
             .detections-list::-webkit-scrollbar-thumb {{ background: #d2d2d7; border-radius: 4px; }}
 
             .det-item {{ border-right: 3px solid var(--brand-blue); padding: 6px 12px; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #1d1d1f; background: #f8fafc; border-radius: 6px; }}
-            .camera-tag {{ background: #f5f5f7; color: #1d1d1f; padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; border: 1px solid #d2d2d7; }}
+            .camera-tag {{ display: inline-block; background: #f5f5f7; color: #1d1d1f; padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; border: 1px solid #d2d2d7; max-width: 100%; word-wrap: break-word; }}
 
             .insight-item {{ font-size: 17px; margin-bottom: 15px; color: #1d1d1f; font-weight: 500; list-style-type: none; position: relative; padding-right: 25px; }}
             .insight-item::before {{ content: '•'; color: var(--brand-blue); font-size: 1.5em; position: absolute; right: 0; top: -5px; }}
 
-            .placeholder-box {{ width: 100%; min-height: 200px; background: #f8fafc; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: 600; font-size: 16px; border: 1px dashed #d2d2d7; }}
+            .placeholder-box {{ width: 100%; min-height: 150px; background: #f8fafc; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: 600; font-size: 16px; border: 1px dashed #d2d2d7; }}
 
-            .collapsible-content {{ max-height: 480px; overflow: hidden; transition: max-height 0.5s ease; position: relative; }}
-            .collapsible-content.expanded {{ max-height: 80vh; overflow-y: auto; padding-bottom:20px; }}
-            .collapsible-content:not(.expanded)::after {{ content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to bottom, transparent, white); pointer-events: none; }}
+            .collapsible-content {{ max-height: 480px; overflow: hidden; transition: max-height 0.3s ease; position: relative; }}
+            .collapsible-content.expanded {{ max-height: 80vh; overflow-y: auto; padding-bottom:10px; }}
+            .collapsible-content:not(.expanded)::after {{ content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to bottom, transparent, var(--bg-light)); pointer-events: none; }}
 
-            .toggle-btn {{ display: block; margin: 20px auto 0; padding: 12px 30px; background: #f5f5f7; color: var(--brand-blue); border: 1px solid #d2d2d7; border-radius: 20px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s; }}
+            .toggle-btn {{ display: block; margin: 20px auto 0; padding: 10px 30px; background: #f5f5f7; color: var(--brand-blue); border: 1px solid #d2d2d7; border-radius: 20px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s; }}
             .toggle-btn:hover {{ background: #e8e8ed; }}
 
             .devices-grid {{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }}
-            .device-badge {{ background: #1d1d1f; color: #f5f5f7; padding: 10px 20px; border-radius: 20px; font-size: 15px; font-weight: 600; transition: transform 0.2s; cursor: default; }}
+            .device-badge {{ background: #1d1d1f; color: #f5f5f7; padding: 10px 20px; border-radius: 20px; font-size: 15px; font-weight: 600; cursor: default; border: 1px solid #38383a; }}
 
-            /* Modal */
-            .modal {{ display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }}
-            .modal-content {{ margin: auto; display: block; max-width: 90%; max-height: 85vh; border-radius: 16px; position: relative; top: 50px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }}
-            .close-modal {{ position: absolute; top: 25px; left: 40px; color: #fff; font-size: 36px; font-weight: 300; cursor: pointer; transition: 0.2s; }}
+            /* שורת סינונים עליונה */
+            .filters-bar {{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }}
+            .filter-input {{ padding: 8px 14px; border-radius: 10px; border: 1px solid #d2d2d7; font-size: 14px; font-weight: 500; font-family: inherit; color: var(--text-dark); background: white; outline: none; }}
+            .filter-input:focus {{ border-color: var(--brand-blue); }}
+
+            /* Modal ללא טשטוש כבד כדי למנוע איטיות בגלילה */
+            .modal {{ display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0, 0.9); }}
+            .modal-content {{ margin: auto; display: block; max-width: 90%; max-height: 85vh; border-radius: 12px; position: relative; top: 50px; }}
+            .close-modal {{ position: absolute; top: 25px; left: 40px; color: #fff; font-size: 40px; font-weight: 300; cursor: pointer; transition: 0.2s; }}
             .close-modal:hover {{ opacity: 0.7; }}
-
-            /* עיצוב סינונים עליונים */
-            .filters-bar {{ display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 25px; }}
-            .filter-input {{ padding: 10px 14px; border-radius: 10px; border: 1px solid #d2d2d7; font-size: 14px; font-family: inherit; color: var(--text-dark); background: white; }}
-            .filter-input:focus {{ border-color: var(--brand-blue); outline: none; }}
         </style>
     </head>
     <body>
@@ -256,14 +285,18 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
                     <div class="section scroll-animate" id="details">
                         <div class="filters-bar">
-                            <h2 style="margin:0; flex-grow:1; border:none; padding:0;">פירוט נתונים</h2>
+                            <h2 style="margin:0; flex-grow:1; border:none; padding:0;">פירוט נתונים וסינון</h2>
 
-                            <input type="text" id="text-filter" class="filter-input" placeholder="חיפוש חופשי (למשל: נשק)" onkeyup="applyFilters()" style="width: 200px;">
+                            <input type="text" id="text-filter" class="filter-input" placeholder="חיפוש חופשי בדו&quot;ח..." onkeyup="applyFilters()" style="min-width: 150px;">
 
-                            <select id="gps-filter" class="filter-input" onchange="applyFilters()" style="cursor:pointer;">
+                            <select id="date-filter" class="filter-input" onchange="applyFilters()" style="cursor:pointer;">
+                                <option value="all">תאריך: הכל</option>
+                                {''.join(f'<option value="{d}">{d}</option>' for d in unique_dates)}
+                            </select>
+
+                            <select id="city-filter" class="filter-input" onchange="applyFilters()" style="cursor:pointer;">
                                 <option value="all">מיקום: הכל</option>
-                                <option value="yes">רק עם נ.צ</option>
-                                <option value="no">ללא מיקום</option>
+                                {''.join(f'<option value="{c}">{c}</option>' for c in unique_cities)}
                             </select>
 
                             <select id="camera-filter" class="filter-input" onchange="applyFilters()" style="cursor:pointer;">
@@ -273,7 +306,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
                         </div>
 
                         <div class="collapsible-content" id="details-content">
-                        <table>
+                        <table id="intel-table">
                             <thead>
                                 <tr>
                                     <th>תמונה ושם קובץ</th>
@@ -362,29 +395,29 @@ def create_report(images_data, map_html, timeline_html, analysis):
                 btn.textContent = el.classList.contains('expanded') ? 'סגור הצגה' : 'הצג הכל';
             }}
 
-            // סינון משולב חכם: מצלמה, GPS, וטקסט חופשי
+            // סינון משולב חכם: מצלמה, GPS/עיר, תאריך וטקסט חופשי
             function applyFilters() {{
                 const cameraFilter = document.getElementById('camera-filter').value;
-                const gpsFilter = document.getElementById('gps-filter').value;
+                const cityFilter = document.getElementById('city-filter').value;
+                const dateFilter = document.getElementById('date-filter').value;
                 const textFilter = document.getElementById('text-filter').value.toLowerCase();
 
-                const rows = document.querySelectorAll('tbody tr');
+                const rows = document.querySelectorAll('#intel-table tbody tr');
 
                 rows.forEach(row => {{
                     if(row.cells.length < 5) return;
 
                     const camCell = row.cells[2].textContent.trim();
-                    const searchDataHidden = row.querySelector('.search-data-hidden') ? row.querySelector('.search-data-hidden').textContent.trim().toLowerCase() : '';
+                    const hiddenData = row.querySelector('.search-data-hidden') ? row.querySelector('.search-data-hidden').textContent.toLowerCase() : '';
+                    const cityHidden = row.querySelector('.city-hidden') ? row.querySelector('.city-hidden').textContent : '';
+                    const dateHidden = row.querySelector('.date-hidden') ? row.querySelector('.date-hidden').textContent : '';
 
                     const matchCamera = (cameraFilter === 'all' || camCell.includes(cameraFilter));
+                    const matchCity = (cityFilter === 'all' || cityHidden === cityFilter);
+                    const matchDate = (dateFilter === 'all' || dateHidden === dateFilter);
+                    const matchText = (textFilter === '' || hiddenData.includes(textFilter));
 
-                    let matchGps = true;
-                    if (gpsFilter === 'yes') {{ matchGps = searchDataHidden.includes('אותר'); }}
-                    if (gpsFilter === 'no') {{ matchGps = searchDataHidden.includes('חסר'); }}
-
-                    const matchText = (textFilter === '' || searchDataHidden.includes(textFilter));
-
-                    row.style.display = (matchCamera && matchGps && matchText) ? '' : 'none';
+                    row.style.display = (matchCamera && matchCity && matchDate && matchText) ? '' : 'none';
                 }});
             }}
 
