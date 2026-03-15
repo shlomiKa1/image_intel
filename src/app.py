@@ -1,6 +1,6 @@
 import os
 import shutil
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 
 # הייבואים שלך (וודא שהם נשארים)
 from analyzer import analyzer
@@ -17,6 +17,17 @@ def index():
     """דף הבית - טופס לבחירת קבצים ותיקיות"""
     # חשוב להעביר error_message=None כברירת מחדל
     return render_template('index.html', error_message=None)
+
+@app.route('/image/<path:filepath>')
+def serve_image(filepath):
+    """
+    מגיש תמונות מתיקיית uploads לציר הזמן.
+    <path:filepath> מאפשר slashes בתוך הנתיב
+    """
+    abs_path = os.path.join(os.getcwd(), filepath)
+    if os.path.exists(abs_path):
+        return send_file(abs_path)
+    return "Image not found", 404
 
 
 @app.route('/analyze', methods=['POST'])

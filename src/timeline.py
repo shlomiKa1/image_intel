@@ -183,6 +183,52 @@ _CSS = """
     color: #8b949e;
     line-height: 1.8;
   }
+
+  /* ── תמונה ממוזערת בכרטיסייה ── */
+  .tl-thumb {
+    width: 100%;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-top: 10px;
+    display: block;
+    background: #1c2128;
+    border: 1px solid #21262d;
+    transition: opacity 0.2s;
+  }
+  .tl-thumb:hover {
+    opacity: 0.85;
+  }
+
+  /* ── Tooltip תמונה גדולה ── */
+  .tl-tooltip {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    background: #161b22;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.7);
+    padding: 10px;
+    pointer-events: none;
+  }
+  .tl-tooltip img {
+    width: 360px;
+    height: 200px;
+    object-fit: contain;
+    border-radius: 6px;
+    display: block;
+    background: #0d1117;
+  }
+  .tl-tip-info {
+    font-size: 10px;
+    color: #8b949e;
+    margin-top: 8px;
+    text-align: center;
+    font-family: 'SF Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+
   @keyframes tl-gap-bounce {
     0%,100% { transform: translateY(0); }
     50%      { transform: translateY(-4px); }
@@ -222,6 +268,7 @@ _CSS = """
 def create_timeline(images_data: list) -> str | None:
     """
     יוצר ציר זמן HTML מרשימת תמונות — עיצוב מודיעיני (dark ops).
+    כולל תמונה ממוזערת בכל כרטיסייה + tooltip תמונה גדולה ב-hover.
 
     :param images_data: רשימת מילונים מ-extractor.extract_all
     :type images_data: list
@@ -252,11 +299,18 @@ def create_timeline(images_data: list) -> str | None:
       <span class="tl-header-title">Photo Intel &middot; Timeline</span>
       <span class="tl-header-count">{len(dated_images)} events</span>
     </div>
+
+    <!-- Tooltip תמונה גדולה — מחוץ ל-track -->
+    <div class="tl-tooltip" id="tlTip">
+      <img id="tlTipImg" src="" alt="">
+      <div class="tl-tip-info" id="tlTipInfo"></div>
+    </div>
+
     <div class="tl-track">
     """
 
     for i, img in enumerate(dated_images):
-        # פער זמן
+        # פער זמן בין תמונות
         if i > 0:
             gap = big_gap(dated_images[i - 1]["datetime"], img["datetime"])
             if gap > 0:
@@ -290,15 +344,28 @@ def create_timeline(images_data: list) -> str | None:
             if extra_parts else ""
         )
 
+        # ── תמונה ממוזערת ──
+        filepath = str(img.get("filepath", "")).replace("\\", "/")
+        filename = img.get("filename", "—")
+
+        thumb_html = (
+            f'<img class="tl-thumb" src="/image/{filepath}" alt="{filename}" loading="lazy">'
+            if filepath else ""
+        )
+
         delay = i * 60
 
         card_html = f"""
-        <div class="tl-card" style="--card-accent:{color}; animation-delay:{delay}ms">
+        <div class="tl-card" style="--card-accent:{color}; animation-delay:{delay}ms"
+             data-filepath="{filepath}"
+             data-filename="{filename}"
+             data-camera="{cam_info}">
           <div class="tl-card-icon">{icon_html} <span>{cam_make or 'Unknown'}</span></div>
           <div class="tl-datetime">{img.get('datetime', '—')}</div>
-          <div class="tl-filename">{img.get('filename', '—')}</div>
+          <div class="tl-filename">{filename}</div>
           <div class="tl-camera">{cam_info}</div>
           {extra_html}
+          {thumb_html}
         </div>
         """
 
@@ -317,7 +384,57 @@ def create_timeline(images_data: list) -> str | None:
         </div>
         """
 
-    html += "</div></div>"
+    html += """
+    </div>
+
+    <script>
+      (function() {
+        const tip     = document.getElementById('tlTip');
+        const tipImg  = document.getElementById('tlTipImg');
+        const tipInfo = document.getElementById('tlTipInfo');
+
+        // מעביר את ה-tooltip ל-body כדי שלא ייחסם על ידי overflow
+        document.body.appendChild(tip);
+
+        function moveTip(e) {
+          const h = tip.offsetHeight;
+          const w = tip.offsetWidth;
+          const m = 16;
+
+          const goUp   = (e.clientY + h + m) > window.innerHeight;
+          const goLeft = (e.clientX + w + m) > window.innerWidth;
+
+          tip.style.top  = (goUp  ? e.clientY - h - m : e.clientY + m) + 'px';
+          tip.style.left = (goLeft ? e.clientX - w - m : e.clientX + m) + 'px';
+        }
+
+        document.querySelectorAll('.tl-card').forEach(function(card) {
+          card.addEventListener('mouseenter', function(e) {
+            var fp = card.dataset.filepath;
+            if (!fp) return;
+
+            tipImg.src = '/image/' + fp;
+            tipInfo.textContent = card.dataset.filename + ' · ' + card.dataset.camera;
+
+            // מציג מחוץ למסך לפני מדידת גודל אמיתי
+            tip.style.visibility = 'hidden';
+            tip.style.display    = 'block';
+            moveTip(e);
+            tip.style.visibility = 'visible';
+          });
+
+          card.addEventListener('mousemove', moveTip);
+
+          card.addEventListener('mouseleave', function() {
+            tip.style.display = 'none';
+            tipImg.src = '';
+          });
+        });
+      })();
+    </script>
+    </div>
+    """
+
     return html
 
 
