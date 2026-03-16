@@ -16,7 +16,18 @@ from vision_clip import ClipVisionAnalyzer
 from face_analyzer import FaceIntelligenceAnalyzer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+
+# --- הפתרון הדינמי ---
+# המערכת בודקת בעצמה היכן ממוקמת תיקיית static במחשב הספציפי הזה
+static_in_same_folder = os.path.join(BASE_DIR, "static")
+static_one_level_up = os.path.abspath(os.path.join(BASE_DIR, "..", "static"))
+
+if os.path.exists(static_in_same_folder):
+    STATIC_DIR = static_in_same_folder
+    print("V Static folder loaded from same directory.")
+else:
+    STATIC_DIR = static_one_level_up
+    print("V Static folder loaded from one level up (..).")
 
 app = Flask(
     __name__,
