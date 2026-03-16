@@ -163,6 +163,7 @@ def extract_metadata(image_path):
     if data is None:
         return {
             "filename": path.name,
+            "filepath": str(image_path),
             "datetime": None,
             "latitude": None,
             "longitude": None,
@@ -173,6 +174,7 @@ def extract_metadata(image_path):
 
     return {
         "filename": path.name,
+        "filepath": str(image_path),
         "datetime": extract_datetime(data),
         "latitude": latitude(data),
         "longitude": longitude(data),
