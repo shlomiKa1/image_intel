@@ -149,7 +149,8 @@ class ClipVisionAnalyzer:
                 image_features = self.model.encode_image(image_input)
                 image_features /= image_features.norm(dim=-1, keepdim=True)
 
-                similarity = (100.0 * image_features @ self.text_features.T).softmax(dim=-1)
+                # חישוב דמיון מוחלט ללא כפיית 100% (Cosine Similarity)
+                similarity = (image_features @ self.text_features.T) * 100.0
 
                 # לוקחים את 2 התוצאות הגבוהות ביותר
                 values, indices = similarity[0].topk(2)
@@ -159,13 +160,13 @@ class ClipVisionAnalyzer:
                 main_category = "לא זוהו מטרות"
 
                 for val, idx in zip(values, indices):
-                    conf = val.item() * 100
+                    conf = val.item()
                     best_phrase = self.phrases[idx]
                     hebrew_result = self.targets_dict[best_phrase]
 
-                    if conf >= 30.0:  # רף ביטחון מינימלי
+                    # רף ביטחון חדש! בציון מוחלט של CLIP, מעל 24 זה בדרך כלל זיהוי אמיתי וטוב.
+                    if conf >= 24.0:
                         res_items.append(f"{hebrew_result} (הקשר: {conf:.1f}%)")
-
                         base_severity = self.severity_map.get(hebrew_result, 0)
                         final_severity = base_severity
 
