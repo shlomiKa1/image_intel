@@ -4,28 +4,3 @@ piexif
 folium
 matplotlib
 pytest
-
-# --- Web Server & API ---
-Flask
-Werkzeug
-
-# --- Image Processing & EXIF ---
-Pillow
-pillow-heif
-numpy
-opencv-python
-
-# --- AI Models (Vision & Context) ---
-ultralytics
-torch
-torchvision
-git+https://github.com/openai/CLIP.git
-huggingface-hub
-
-# --- Utilities & Services ---
-deep-translator
-geopy
-
-# --- Mapping & UI ---
-folium
-branca
