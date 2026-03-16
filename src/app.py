@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 import shutil
 import time
 from flask import Flask, render_template, request, send_file
@@ -15,14 +17,15 @@ from vision import WorldVisionAnalyzer
 from vision_clip import ClipVisionAnalyzer
 from face_analyzer import FaceIntelligenceAnalyzer
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "..", "static")
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR.parent / "static"
 
 app = Flask(
     __name__,
-    static_folder=STATIC_DIR,
+    static_folder=str(STATIC_DIR),
     static_url_path="/static"
 )
+
 
 # טעינת המודלים לזיכרון בעליית השרת
 vision_ai_yolo = WorldVisionAnalyzer()
