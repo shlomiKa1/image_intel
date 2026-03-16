@@ -38,6 +38,7 @@ geo_cache = {}
 
 
 def get_city_name(lat, lon):
+    """פונקציה המנתחת את מיקום שצולם התמונה, ומחזירה את מיקום מהמפה"""
     if not lat or not lon:
         return "לא ידוע"
 
@@ -64,22 +65,22 @@ def get_city_name(lat, lon):
 
 @app.route('/')
 def index():
+    """
+        דף הבית — טוען את רשימות המטרות של YOLO ו-CLIP
+        ומעביר אותן לתבנית index.html לתצוגה בלוח הבקרה.
+    """
     # שולח ל-HTML את המטרות של שני המודלים כדי שיוצגו בלוח הבקרה בהתאמה
     yolo_targets = vision_ai_yolo.get_current_targets() if hasattr(vision_ai_yolo, 'get_current_targets') else []
     clip_targets = vision_ai_clip.get_current_targets() if hasattr(vision_ai_clip, 'get_current_targets') else []
     return render_template('index.html', error_message=None, yolo_targets=yolo_targets, clip_targets=clip_targets)
 
 
-@app.route('/image/<path:filepath>')
-def serve_image(filepath):
-    abs_path = os.path.abspath(os.path.join(os.getcwd(), filepath))
-    if os.path.exists(abs_path):
-        return send_file(abs_path)
-    return "Image not found", 404
-
-
 @app.route('/detections/<path:filename>')
 def serve_detections(filename):
+    """
+        מגיש קבצי תמונה מעובדים מתיקיית static/detections.
+        מחזיר 404 אם הקובץ לא נמצא.
+    """
     abs_path = os.path.abspath(os.path.join(os.getcwd(), 'static', 'detections', filename))
     if os.path.exists(abs_path):
         return send_file(abs_path)
@@ -88,6 +89,17 @@ def serve_detections(filename):
 
 @app.route('/analyze', methods=['POST'])
 def analyze_images():
+    """
+        שרת ראשי — המקבל תמונות מהמשתמש ומחזיר דו"ח מודיעיני HTML.
+
+        שלבי הביצוע:
+            1. Validation — סינון קבצים ריקים
+            2. בחירת מנוע AI (YOLO / CLIP)
+            3. עדכון מטרות + תרגום עברית לאנגלית
+            4. שמירת קבצים לתיקייה זמנית
+            5. ניתוח כל תמונה: AI + פנים + GPS + תאריך
+            6. הרכבת דו"ח מלא
+        """
     start_time = time.time()  # תחילת מדידת זמן הסריקה
 
     # שליפת כל הקבצים וסינון אלו שאין להם שם (שדות קלט ריקים)
