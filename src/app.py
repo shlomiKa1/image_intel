@@ -1,6 +1,4 @@
 import os
-from pathlib import Path
-
 import shutil
 import time
 from flask import Flask, render_template, request, send_file
@@ -17,15 +15,14 @@ from vision import WorldVisionAnalyzer
 from vision_clip import ClipVisionAnalyzer
 from face_analyzer import FaceIntelligenceAnalyzer
 
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR.parent / "static"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = Flask(
     __name__,
-    static_folder=str(STATIC_DIR),
+    static_folder=STATIC_DIR,
     static_url_path="/static"
 )
-
 
 # טעינת המודלים לזיכרון בעליית השרת
 vision_ai_yolo = WorldVisionAnalyzer()
@@ -80,7 +77,8 @@ def serve_image(filepath):
 
 @app.route('/detections/<path:filename>')
 def serve_detections(filename):
-    abs_path = os.path.abspath(os.path.join(os.getcwd(), 'static', 'detections', filename))
+    # סנכרון נתיב החיפוש עם תיקיית ה-static האמיתית של השרת
+    abs_path = os.path.abspath(os.path.join(app.static_folder, 'detections', filename))
     if os.path.exists(abs_path):
         return send_file(abs_path)
     return "Image not found", 404
@@ -179,11 +177,14 @@ def analyze_images():
             # --- פתרון תצוגת התמונה ל-CLIP ---
             annotated_url = ai_results.get("annotated_url")
             if not annotated_url:
-                # המודל לא סיפק תמונה מצוירת? נעתיק את התמונה המקורית לתיקיית התצוגה!
-                dest_path = os.path.join(os.getcwd(), 'static', 'detections', filename)
+                # התיקון: שימוש בתיקיית ה-static האמיתית של פלאסק ולא במיקום אקראי
+                dest_path = os.path.join(app.static_folder, 'detections', filename)
                 os.makedirs(os.path.dirname(dest_path), exist_ok=True)
                 shutil.copy(os.path.abspath(filepath), dest_path)
                 annotated_url = filename
+            else:
+                # התיקון: חיתוך הנתיב והשארת שם הקובץ בלבד
+                annotated_url = str(annotated_url).replace('\\', '/').split('/')[-1]
 
             img["annotated_url"] = annotated_url
 
@@ -221,7 +222,14 @@ def analyze_images():
         analysis = {}
 
     analysis['processing_time'] = processing_time
-    analysis['faces_data'] = face_ai.get_report_data() if face_rec_enabled else []
+
+    faces_data = face_ai.get_report_data() if face_rec_enabled else []
+    # מנקים גם את הנתיבים של זיהוי הפנים (פותר בעיות למאק/ווינדוס)
+    for face in faces_data:
+        if "crop_path" in face:
+            face["crop_path"] = str(face["crop_path"]).replace('\\', '/').split('/')[-1]
+
+    analysis['faces_data'] = faces_data
 
     report_html = create_report(images_data, map_html, timeline_html, analysis)
 
