@@ -15,7 +15,14 @@ from vision import WorldVisionAnalyzer
 from vision_clip import ClipVisionAnalyzer
 from face_analyzer import FaceIntelligenceAnalyzer
 
-app = Flask(__name__, static_folder="../static")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "..", "static")
+
+app = Flask(
+    __name__,
+    static_folder=STATIC_DIR,
+    static_url_path="/static"
+)
 
 # טעינת המודלים לזיכרון בעליית השרת
 vision_ai_yolo = WorldVisionAnalyzer()
