@@ -15,12 +15,10 @@ class FaceIntelligenceAnalyzer:
         self.output_dir = base_output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
-        # המודל שנשתמש בו לקידוד הפנים (VGG-Face, Facenet, ArcFace וכו')
-        self.recognition_model = "Facenet"
-        # המודל שיאתר את הפנים בתוך התמונה
+        # החלפנו ל-ArcFace שהוא המודל המדויק ביותר כיום ב-DeepFace
+        self.recognition_model = "ArcFace"
         self.detector_backend = "retinaface"
 
-        # מאגר הזהויות שלנו
         self.identities_db = {}
         self.unknown_counter = 1
 
@@ -130,19 +128,20 @@ class FaceIntelligenceAnalyzer:
         except Exception as e:
             print(f"שגיאה בסריקת פנים בתמונה {source_filename}: {e}")
 
-    def _find_match_in_db(self, target_embedding, threshold=0.40):
-        best_match_id = None
-        best_distance = float("inf")
+        # עדכנו את סף הרגישות ל-0.68 (המומלץ ל-ArcFace) במקום 0.40
+    def _find_match_in_db(self, target_embedding, threshold=0.68):
+            best_match_id = None
+            best_distance = float("inf")
 
-        for identity_id, data in self.identities_db.items():
-            db_embedding = data["embedding"]
-            distance = self._cosine_distance(target_embedding, db_embedding)
+            for identity_id, data in self.identities_db.items():
+                db_embedding = data["embedding"]
+                distance = self._cosine_distance(target_embedding, db_embedding)
 
-            if distance < threshold and distance < best_distance:
-                best_distance = distance
-                best_match_id = identity_id
+                if distance < threshold and distance < best_distance:
+                    best_distance = distance
+                    best_match_id = identity_id
 
-        return best_match_id
+            return best_match_id
 
     def _cosine_distance(self, a, b):
         a = np.array(a)
