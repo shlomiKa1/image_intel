@@ -216,7 +216,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
             .main-content {{ margin-right: 260px; flex-grow: 1; width: calc(100% - 260px); position: relative; }}
             .hero {{ height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; box-sizing: border-box; position: relative; }}
             .hero h1 {{ font-size: 4em; font-weight: 800; line-height: 1.1; margin: 0 0 15px 0; color: var(--text-light); opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.2s; }}
-            .hero p {{ font-size: 1.3em; margin: 0 0 50px 0; color: #cbd5e1; opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.5s; }}
+            .hero p {{ font-size: 1.3em; margin: 0 0 50px 0; color: #ffffff; text-shadow: 0 0 20px rgba(0,0,0,1), 0 2px 4px rgba(0,0,0,1); opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.5s; }}
 
             .hero-stats {{ display: flex; gap: 30px; opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.8s; flex-wrap: wrap; justify-content: center; }}
             .stat-card {{ background: rgba(15,23,42,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); padding: 30px 40px; border-radius: 20px; text-align: center; min-width: 180px; }}
