@@ -163,7 +163,7 @@ class ClipVisionAnalyzer:
                     best_phrase = self.phrases[idx]
                     hebrew_result = self.targets_dict[best_phrase]
 
-                    if conf >= 12.0:  # רף ביטחון מינימלי
+                    if conf >= 30.0:  # רף ביטחון מינימלי
                         res_items.append(f"{hebrew_result} (הקשר: {conf:.1f}%)")
 
                         base_severity = self.severity_map.get(hebrew_result, 0)

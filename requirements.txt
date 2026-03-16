@@ -7,7 +7,9 @@ pytest
 
 # --- Web Server & API ---
 Flask
+flask
 Werkzeug
+tf-keras
 
 # --- Image Processing & EXIF ---
 Pillow
@@ -29,3 +31,5 @@ geopy
 # --- Mapping & UI ---
 folium
 branca
+
+deepface

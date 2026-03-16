@@ -8,9 +8,14 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
     insights = analysis.get("insights") or []
     unique_cameras = analysis.get("unique_cameras") or []
-    total_images = analysis.get("total_images", 0) or 0
-    images_with_gps = analysis.get("images_with_gps", 0) or 0
+    # רשת ביטחון למקרה שה-analyzer לא מחשב נכון את הכמויות
+    total_images = analysis.get("total_images") or len(images_data or [])
+    images_with_gps = analysis.get("images_with_gps") or sum(1 for img in (images_data or []) if img.get("latitude"))
     cameras_count = len(unique_cameras)
+
+    # --- הוספה: משיכת נתוני זמן עיבוד וזיהוי פנים ---
+    processing_time = analysis.get("processing_time", 0)
+    faces_data = analysis.get("faces_data", [])
 
     # הפקת רשימת ערים וימים ייחודיים לטובת הסינונים הנופלים
     unique_cities = set()
@@ -121,6 +126,43 @@ def create_report(images_data, map_html, timeline_html, analysis):
     if not images_table_html:
         images_table_html = "<tr><td colspan='5' style='text-align:center;'>לא נמצאו תמונות להצגה</td></tr>"
 
+    # --- הוספה: יצירת טבלת זיהוי הפנים ---
+    faces_html = ""
+    for face in faces_data:
+        crop_path = html_module.escape(str(face.get("crop_path", "")))
+        face_img_url = f"/static/faces/{crop_path}"
+
+        appearances_list = face.get("appearances", [])
+        appearances_str = "<br>".join([html_module.escape(str(a)) for a in appearances_list])
+
+        name = html_module.escape(str(face.get("name", "לא ידוע")))
+        age = html_module.escape(str(face.get("age", "לא ידוע")))
+        race = html_module.escape(str(face.get("race", "לא ידוע")))
+        is_target = face.get("is_target", False)
+
+        if is_target:
+            name_display = f"<span style='color: #0A84FF; font-weight: 800;'>{name}</span><br><span style='color:#32d74b; font-size:12px; font-weight:600;'>(מטרת חוקר)</span>"
+        else:
+            name_display = f"<span style='font-weight: 600; color:var(--text-dark);'>{name}</span>"
+
+        faces_html += f"""
+        <tr>
+            <td class="col-visual" style="width: 150px;">
+                <div class="img-thumb-box" onclick="openModal('{face_img_url}')" style="height: 110px;">
+                    <img src="{face_img_url}" alt="פנים">
+                    <div class="zoom-icon">הגדל</div>
+                </div>
+            </td>
+            <td dir="ltr" style="text-align: right; font-size:13px; color:var(--text-muted); line-height:1.6;">{appearances_str}</td>
+            <td dir="ltr" style="text-align: right; font-weight: 600;">{age}</td>
+            <td>{race}</td>
+            <td>{name_display}</td>
+        </tr>
+        """
+
+    if not faces_html:
+        faces_html = "<tr><td colspan='5' style='text-align:center; padding: 30px; color:#86868b;'>לא הופעל זיהוי פנים, או שלא אותרו דמויות אנושיות במהלך הסריקה.</td></tr>"
+
     map_html = map_html or "<div class='placeholder-box'>אין נתוני מיקום להצגת מפה</div>"
     timeline_html = timeline_html or "<div class='placeholder-box'>אין נתוני זמן להצגת ציר הזמן</div>"
 
@@ -176,7 +218,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
             .hero h1 {{ font-size: 4em; font-weight: 800; line-height: 1.1; margin: 0 0 15px 0; color: var(--text-light); opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.2s; }}
             .hero p {{ font-size: 1.3em; margin: 0 0 50px 0; color: #cbd5e1; opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.5s; }}
 
-            .hero-stats {{ display: flex; gap: 30px; opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.8s; }}
+            .hero-stats {{ display: flex; gap: 30px; opacity: 0; transform: translateY(30px); animation: fadeInUp 1s ease-out forwards; animation-delay: 0.8s; flex-wrap: wrap; justify-content: center; }}
             .stat-card {{ background: rgba(15,23,42,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); padding: 30px 40px; border-radius: 20px; text-align: center; min-width: 180px; }}
             .stat-card .number {{ font-size: 3.5em; font-weight: 800; color: var(--brand-yellow); margin-bottom: 5px; line-height: 1; }}
             .stat-card .label {{ font-size: 1.05em; font-weight: 500; color: #e2e8f0; }}
@@ -251,7 +293,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
         <div class="sidebar">
             <div class="sidebar-logo">Image Intel<span>מערכת מודיעין ויזואלי</span></div>
             <a href="#hero">מסך פתיחה</a>
-            <a href="#details">פירוט נתונים</a>
+            <a href="#faces">זיהוי פנים ודמוגרפיה</a> <a href="#details">פירוט נתונים</a>
             <a href="#insights">תובנות מבצעיות</a>
             <a href="#map">מפה גיאוגרפית</a>
             <a href="#timeline">ציר זמן</a>
@@ -277,17 +319,42 @@ def create_report(images_data, map_html, timeline_html, analysis):
                         <div class="number count-up" data-target="{total_images}">0</div>
                         <div class="label">פריטים נותחו</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="number count-up" data-target="{processing_time}">0</div>
+                        <div class="label">שניות סריקה ופענוח</div>
+                    </div>
                 </div>
             </div>
 
             <div class="content-wrapper">
                 <div class="container">
 
+                    <div class="section scroll-animate" id="faces">
+                        <h2>זיהוי פנים וניתוח דמוגרפי</h2>
+                        <div class="collapsible-content" id="faces-content">
+                        <table id="faces-table">
+                            <thead>
+                                <tr>
+                                    <th>תמונת פנים</th>
+                                    <th>תמונות שבהם זוהה (תצוגה)</th>
+                                    <th>גיל משוער</th>
+                                    <th>מוצא משוער</th>
+                                    <th>שם / זיהוי</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {faces_html}
+                            </tbody>
+                        </table>
+                        </div>
+                        <button class="toggle-btn" onclick="toggleSection('faces-content', this)">הצג הכל</button>
+                    </div>
+
                     <div class="section scroll-animate" id="details">
                         <div class="filters-bar">
                             <h2 style="margin:0; flex-grow:1; border:none; padding:0;">פירוט נתונים וסינון</h2>
 
-                            <input type="text" id="text-filter" class="filter-input" placeholder="חיפוש חופשי בדו&quot;ח..." onkeyup="applyFilters()" style="min-width: 150px;">
+                            <input type="text" id="text-filter" class="filter-input" placeholder="חיפוש חופשי בדו"ח..." onkeyup="applyFilters()" style="min-width: 150px;">
 
                             <select id="date-filter" class="filter-input" onchange="applyFilters()" style="cursor:pointer;">
                                 <option value="all">תאריך: הכל</option>
@@ -371,11 +438,22 @@ def create_report(images_data, map_html, timeline_html, analysis):
                 const speed = 200;
                 counters.forEach(counter => {{
                     const updateCount = () => {{
-                        const target = +counter.getAttribute('data-target');
-                        const count = +counter.innerText;
+                        const targetStr = counter.getAttribute('data-target');
+                        const target = parseFloat(targetStr) || 0;
+                        const count = parseFloat(counter.innerText) || 0;
                         const inc = target / speed;
-                        if (count < target) {{ counter.innerText = Math.ceil(count + inc); setTimeout(updateCount, 15); }}
-                        else {{ counter.innerText = target; }}
+                        
+                        if (count < target) {{ 
+                            // אבחנה מדויקת בין מספרים שלמים (תמונות) למספרים עשרוניים (שניות)
+                            if (targetStr.includes('.')) {{
+                                counter.innerText = (count + inc).toFixed(2); 
+                            }} else {{
+                                counter.innerText = Math.ceil(count + inc);
+                            }}
+                            setTimeout(updateCount, 15); 
+                        }} else {{ 
+                            counter.innerText = target; 
+                        }}
                     }};
                     setTimeout(updateCount, 1800);
                 }});
