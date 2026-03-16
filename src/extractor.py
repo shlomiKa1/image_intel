@@ -45,10 +45,10 @@ def longitude(data):
     return None
 
 def camera_make(data):
-    return data.get('Make')
+    return data.get('Make').split("\x00")[0]
 
 def camera_model(data):
-    return data.get('Model')
+    return data.get('Model').split("\x00")[0]
 
 def has_gps(data):
     return latitude(data) is not None and longitude(data) is not None
