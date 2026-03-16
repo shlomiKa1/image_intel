@@ -2,250 +2,321 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Intel - מודיעין חזותי</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Image Intel</title>
     <style>
+        /* ייבוא הפונט רק עבור הכותרת */
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap');
+
         :root {
             --bg-color: #050505;
-            --container-bg: rgba(15, 23, 42, 0.75);
-            --text-color: #e2e8f0;
-            --accent-color: #02befe;
-            --accent-hover: #045dfe;
-            --border-color: #334155;
+            --container-bg: rgba(28, 28, 30, 0.75);
+            --text-color: #f5f5f7;
+            --text-muted: #98989d;
+            --accent-color: #0A84FF;
+            --accent-hover: #0071e3;
+            --border-color: #38383a;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            touch-action: manipulation; outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #050505 70%);
+            background-image: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 70%);
             color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        /* ===== GLOBE HERO ===== */
-        .globe-hero {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 0 0;
-            position: relative;
-        }
-
-        .globe-wrap {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin-bottom: 18px;
-        }
-
-        #globe-canvas {
-            border-radius: 50%;
-            box-shadow: 0 0 50px rgba(2,190,254,0.3), 0 0 100px rgba(4,93,254,0.15);
-            display: block;
-        }
-
-        .glow-ring {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 196px; height: 196px;
-            border-radius: 50%;
-            border: 1px solid rgba(2,190,254,0.2);
-            animation: pulse 3s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        .glow-ring-2 {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 216px; height: 216px;
-            border-radius: 50%;
-            border: 1px solid rgba(2,190,254,0.08);
-            animation: pulse 3s ease-in-out infinite 1.5s;
-            pointer-events: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-        /* ===== END GLOBE ===== */
-
-        .container {
-            background-color: var(--container-bg);
-            padding: 30px 50px 50px;
-            border-radius: 4px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            width: 100%;
-            max-width: 550px;
-            text-align: center;
-            backdrop-filter: blur(15px);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh; font-weight: 500; letter-spacing: 0.025em; padding: 20px;
         }
 
         h1 {
-            background: linear-gradient(90deg,#9766FF,#628CFE 60.48%,#6575FF 62.58%,#045dfe 83.92%,#02befe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 3.5em;
-            margin-bottom: 5px;
-            margin-top: 0;
-            letter-spacing: 3px;
-            font-weight: 800;
+            font-family: 'Heebo', sans-serif !important;
+            background: linear-gradient(90deg, #9766FF, #628CFE 60%, #0A84FF);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 3.5em; margin-bottom: 5px; margin-top: 0; font-weight: 900; letter-spacing: 1px;
+            line-height: 1.2; padding-bottom: 5px;
         }
 
-        .slogan {
-            color: #cbd5e1;
-            font-weight: 400;
-            font-size: 1.3em;
-            margin-top: -10px;
-            margin-bottom: 20px;
-            line-height: 1.4;
-            letter-spacing: 1px;
+        h2 { margin-top: 15px; font-size: 24px; font-weight: 700; color: #fff; }
+        p { margin-top: 10px; font-weight: 400; line-height: 1.5; color: var(--text-muted); }
+
+        .globe-hero { display: flex; flex-direction: column; align-items: center; padding: 20px 0 0; position: relative; }
+        .globe-wrap { position: relative; width: 180px; height: 180px; margin-bottom: 18px; }
+        #globe-canvas { border-radius: 50%; box-shadow: 0 0 50px rgba(10,132,255,0.3), 0 0 100px rgba(10,132,255,0.15); display: block; }
+        .glow-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 196px; height: 196px; border-radius: 50%; border: 1px solid rgba(10,132,255,0.2); animation: pulse 3s ease-in-out infinite; pointer-events: none; }
+        .glow-ring-2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 216px; height: 216px; border-radius: 50%; border: 1px solid rgba(10,132,255,0.08); animation: pulse 3s ease-in-out infinite 1.5s; pointer-events: none; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        .container {
+            background-color: var(--container-bg); padding: 40px 50px 50px;
+            border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05); width: 100%; max-width: 550px;
+            text-align: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
 
-        .desc {
-            color: #64748b;
-            font-size: 0.95em;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            padding: 0 15px;
+        .desc { font-size: 15px; margin-bottom: 30px; margin-top: 0; }
+
+        .radio-group { display: flex; flex-direction: column; align-items: flex-start; text-align: right; gap: 15px; margin-bottom: 25px; }
+        .radio-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 15px; line-height: 1.4; color: var(--text-color); }
+        .radio-label input[type="radio"] {
+            appearance: none; -webkit-appearance: none; width: 22px; height: 22px; flex-shrink: 0;
+            border: 2px solid var(--text-muted); border-radius: 50%; background-color: transparent;
+            position: relative; cursor: pointer; outline: none; transition: border-color 0.2s; margin-top: 2px;
         }
+        .radio-label input[type="radio"]:checked { border-color: var(--accent-color); }
+        .radio-label input[type="radio"]:checked::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 10px; height: 10px; border-radius: 50%; background-color: var(--accent-color);
+        }
+        .radio-subtext { display: block; font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 400; }
 
         .file-drop-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 50px 20px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-            background-color: rgba(255, 255, 255, 0.02);
-            cursor: pointer;
+            border: 2px dashed var(--border-color); border-radius: 16px; padding: 40px 20px;
+            margin-bottom: 25px; transition: all 0.3s ease; background-color: rgba(255, 255, 255, 0.02); cursor: pointer;
         }
-
-        .file-drop-area:hover, .file-drop-area.dragover {
-            border-color: var(--accent-color);
-            background-color: rgba(2, 190, 254, 0.05);
-        }
-
-        .file-msg {
-            font-size: 1.2em;
-            color: #cbd5e1;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .file-msg-sub {
-            font-size: 0.9em;
-            color: #64748b;
-        }
-
+        .file-drop-area:hover { border-color: var(--accent-color); background-color: rgba(10,132,255, 0.05); }
+        .file-msg { font-size: 18px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-color); }
+        .file-msg-sub { font-size: 13px; color: var(--text-muted); font-weight: 400; }
         input[type="file"] { display: none; }
 
+        .btn-settings {
+            background-color: transparent; color: var(--accent-color); border: 1px solid var(--border-color);
+            padding: 14px; font-size: 15px; font-weight: 600; border-radius: 14px; cursor: pointer;
+            transition: all 0.2s ease; width: 100%; margin-bottom: 15px; font-family: inherit;
+        }
+        .btn-settings:hover { background-color: rgba(255,255,255, 0.05); border-color: var(--accent-color); }
+
         .submit-btn {
-            background-color: var(--accent-color);
-            color: #000;
-            border: none;
-            padding: 16px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 10px;
+            background-color: var(--accent-color); color: #fff; border: none; padding: 16px;
+            font-size: 17px; font-weight: 600; border-radius: 14px; cursor: pointer;
+            transition: all 0.2s ease; width: 100%; font-family: inherit; margin-top: 10px;
+        }
+        .submit-btn:active { transform: scale(0.98); background-color: var(--accent-hover); }
+
+        .error-box { background-color: rgba(255, 59, 48, 0.1); border: 1px solid #ff3b30; color: #ff453a; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; display: none; }
+
+        /* ===== Modal overlay ===== */
+        .ai-modal {
+            display: none; position: fixed; z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.82);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
 
-        .submit-btn:hover {
-            background-color: var(--accent-hover);
-            color: white;
-            box-shadow: 0 0 20px rgba(2, 190, 254, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .radio-group {
+        .ai-modal-content {
+            background-color: #141414;
+            margin: 4% auto;
+            padding: 28px 24px 22px;
+            border-radius: 20px;
+            width: 90%; max-width: 540px;
+            border: 0.5px solid #2a2a2a;
+            position: relative;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+            text-align: right;
+            max-height: 88vh;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            overflow: hidden;
+        }
+
+        .close-btn {
+            position: absolute; top: 18px; left: 22px;
+            font-size: 28px; font-weight: 300;
+            cursor: pointer; color: #555; transition: color 0.2s;
+            line-height: 1; background: none; border: none; padding: 0;
+        }
+        .close-btn:hover { color: #ccc; }
+
+        .model-cards {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-bottom: 22px;
+        }
+
+        .model-card {
+            border: 0.5px solid #2a2a2a;
+            background: #1c1c1c;
+            border-radius: 14px; padding: 14px 16px;
+            cursor: pointer; transition: all 0.18s ease;
             text-align: right;
-            gap: 10px;
-            margin-bottom: 20px;
+        }
+        .model-card:hover { border-color: #3a3a3a; background: #222; }
+        .model-card.active {
+            border: 1.5px solid #0A84FF;
+            background: rgba(10,132,255,0.08);
+        }
+        .model-card .mc-title {
+            font-size: 13px; font-weight: 600;
+            color: #ccc; margin: 0 0 4px; transition: color 0.18s;
+        }
+        .model-card.active .mc-title { color: #4da3ff; }
+        .model-card .mc-sub {
+            font-size: 11px; color: #555; margin: 0; font-weight: 400;
+        }
+        .model-card .mc-tag {
+            display: inline-block; font-size: 10px; font-weight: 600;
+            padding: 2px 7px; border-radius: 20px;
+            background: #222; color: #666;
+            margin-bottom: 6px; letter-spacing: 0.5px;
+            transition: all 0.18s;
+        }
+        .model-card.active .mc-tag {
+            background: rgba(10,132,255,0.15); color: #0A84FF;
         }
 
-        .radio-label {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: var(--text-color);
-            font-size: 1em;
+        .section-label {
+            font-size: 12px; font-weight: 600; color: #555;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            margin-bottom: 10px; margin-top: 0;
         }
 
-        .radio-label input[type="radio"] {
-            display: inline;
-            accent-color: var(--accent-color);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
+        .targets-scroll {
+            overflow-y: auto; flex: 1;
+            min-height: 160px; max-height: 340px;
+            padding-left: 2px; margin-bottom: 10px;
+            scrollbar-width: thin; scrollbar-color: #2a2a2a transparent;
         }
+        .targets-scroll::-webkit-scrollbar { width: 5px; }
+        .targets-scroll::-webkit-scrollbar-track { background: transparent; }
+        .targets-scroll::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
 
-        .error-box {
-            background-color: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #f87171;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 1.05em;
-            display: none;
-            transition: all 0.3s ease;
+        .target-row {
+            background: #1a1a1a;
+            border: 0.5px solid #252525;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
         }
+        .target-row:hover { border-color: #333; }
+        .target-row .row-inputs {
+            display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
+        }
+        .target-row input[type="text"] {
+            flex: 1; padding: 7px 10px;
+            border-radius: 8px; border: 0.5px solid #2a2a2a;
+            background: #0d0d0d; color: #e0e0e0;
+            font-family: inherit; font-size: 13px; outline: none;
+            transition: border-color 0.15s;
+        }
+        .target-row input[type="text"]:focus { border-color: #0A84FF; }
+        .target-row input[type="text"]::placeholder { color: #3a3a3a; }
+        .target-row .eng-input { color: #666 !important; direction: ltr; }
 
-        .error-box.show-server-error { display: block; }
+        .delete-btn {
+            width: 30px; height: 30px; flex-shrink: 0;
+            border-radius: 8px; border: 0.5px solid #2a2a2a;
+            background: none; color: #444; font-size: 14px;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: all 0.15s; line-height: 1;
+        }
+        .delete-btn:hover { border-color: #ff453a; color: #ff453a; background: rgba(255,69,58,0.06); }
+
+        .sev-row {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sev-row input[type="range"] {
+            flex: 1; height: 4px; cursor: pointer;
+            -webkit-appearance: none; appearance: none;
+            background: #2a2a2a; border-radius: 2px; outline: none;
+        }
+        .sev-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px;
+            border-radius: 50%; cursor: pointer;
+            border: 2px solid #0d0d0d;
+            transition: transform 0.1s;
+        }
+        .sev-row input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        .sev-badge {
+            font-size: 11px; font-weight: 600;
+            padding: 3px 9px; border-radius: 20px;
+            min-width: 56px; text-align: center;
+            flex-shrink: 0; transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .sev-high  { background: rgba(255,69,58,0.12);  color: #ff6961; }
+        .sev-mid   { background: rgba(255,159,10,0.12); color: #ff9f0a; }
+        .sev-low   { background: rgba(48,209,88,0.10);  color: #32d74b; }
+
+        @keyframes rowIn {
+            from { opacity: 0; transform: translateY(-6px); border-color: rgba(10,132,255,0.5); }
+            to   { opacity: 1; transform: none; border-color: #252525; }
+        }
+        .target-row.new-row { animation: rowIn 0.3s ease forwards; }
+
+        .btn-add-target {
+            width: 100%; padding: 10px;
+            border-radius: 10px;
+            border: 0.5px dashed #2a2a2a;
+            background: none; color: #444;
+            font-size: 13px; font-family: inherit;
+            cursor: pointer; margin-bottom: 14px;
+            transition: all 0.15s;
+        }
+        .btn-add-target:hover { border-color: #0A84FF; color: #0A84FF; background: rgba(10,132,255,0.04); }
+
+        .btn-save {
+            background: #0A84FF; color: #fff;
+            border: none; padding: 13px;
+            border-radius: 12px; font-size: 14px; font-weight: 600;
+            cursor: pointer; width: 100%; font-family: inherit;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-save:hover  { background: #0071e3; }
+        .btn-save:active { transform: scale(0.98); }
+
+        @keyframes savedPop {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .btn-save.saved { background: #1c7a3a; animation: savedPop 0.35s ease; }
+
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .spinner { width: 50px; height: 50px; border: 3px solid #38383a; border-top: 3px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-title { font-size: 24px; font-weight: 700; color: white; margin-bottom: 10px; font-family: 'Heebo', sans-serif;}
+        .loading-desc { color: var(--text-muted); font-size: 15px; font-weight: 400;}
     </style>
 </head>
 <body>
 
-    <!-- גלובוס מסתובב -->
     <div class="globe-hero">
         <div class="globe-wrap">
-            <div class="glow-ring"></div>
-            <div class="glow-ring-2"></div>
+            <div class="glow-ring"></div><div class="glow-ring-2"></div>
             <canvas id="globe-canvas" width="180" height="180"></canvas>
         </div>
     </div>
 
-    <div class="container">
+    <div class="container" id="main-content">
         <h1>Image Intel</h1>
-
-        <p class="desc">
-            מערכת מבצעית לסריקה, פענוח וניתוח נתוני תקשורת חזותית (EXIF).<br>
-            הזן חומרי גלם לחשיפת נתונים סמויים ובניית תמונת מצב מודיעינית.
-        </p>
+        <p class="desc">מערכת מבצעית לסריקה, פענוח וניתוח נתוני תקשורת חזותית.<br>הזן חומרי גלם לבניית תמונת מצב מודיעינית.</p>
 
         {% if error_message %}
-        <div class="error-box show-server-error">{{ error_message }}</div>
+        <div class="error-box" style="display:block;">שגיאה: {{ error_message }}</div>
         {% endif %}
 
-        <div class="error-box" id="client-error">
-            שגיאה: חובה להזין חומרי גלם או ספריות יעד לפני תחילת הסריקה המבצעית.
-        </div>
+        <div class="error-box" id="client-error">שגיאה: חובה להזין חומרי גלם או ספריות יעד לפני תחילת הסריקה.</div>
 
         <form id="upload-form" action="/analyze" method="POST" enctype="multipart/form-data">
-            <div class="radio-group">
+            <div class="radio-group" style="margin-bottom: 25px;">
                 <label class="radio-label">
                     <input type="radio" name="mode" value="files" checked onchange="setMode('files')">
-                    הזנת חומרי גלם (קבצים)
+                    <div>
+                        הזנת חומרי גלם (קבצים בודדים)
+                        <span class="radio-subtext">תמיכה מלאה בתמונות ממרחב iOS ואנדרואיד</span>
+                    </div>
                 </label>
                 <label class="radio-label">
                     <input type="radio" name="mode" value="folder" onchange="setMode('folder')">
-                    סריקת ספריות יעד (תיקיות)
+                    <div>
+                        סריקת ספריות יעד (תיקיות שלמות)
+                        <span class="radio-subtext">איסוף גורף של כלל התוכן בתיקייה ותתי-התיקיות</span>
+                    </div>
                 </label>
             </div>
 
@@ -256,13 +327,94 @@
                 <input type="file" name="photos" id="folder-input" multiple webkitdirectory>
             </div>
 
-            <div id="preview-container" style="
-                display: flex; flex-wrap: wrap; gap: 8px;
-                margin-top: 15px; justify-content: center;
-            "></div>
+            <button type="button" class="btn-settings" onclick="openAiModal()">הגדרות מנוע סריקה ויעדי איסוף</button>
+
+            <input type="hidden" name="ai_model" id="selected_model_input" value="yolo">
+            <input type="hidden" name="dynamic_targets" id="dynamic_targets" value="[]">
 
             <button type="submit" class="submit-btn">הפעל סריקה מבצעית</button>
         </form>
+    </div>
+
+    <div id="aiModal" class="ai-modal">
+      <div class="ai-modal-content">
+
+        <button class="close-btn" onclick="closeAiModal()">×</button>
+
+        <h2 style="margin:0 0 4px; font-size:17px; font-weight:700; color:#fff;">הגדרות מנוע סריקה</h2>
+        <p style="margin:0 0 20px; font-size:13px; color:#666; font-weight:400;">בחר מודל ונהל את יעדי האיסוף שלו.</p>
+
+        <div class="model-cards">
+          <div class="model-card active" id="card-yolo" onclick="selectModel('yolo')">
+            <p class="mc-tag">YOLO-World</p>
+            <p class="mc-title">סריקה טקטית</p>
+            <p class="mc-sub">איתור נקודתי מהיר של פריטים ספציפיים</p>
+          </div>
+          <div class="model-card" id="card-clip" onclick="selectModel('clip')">
+            <p class="mc-tag">CLIP</p>
+            <p class="mc-title">סריקה הקשרית</p>
+            <p class="mc-sub">סיווג סצנות ואווירה כללית</p>
+          </div>
+        </div>
+
+        <p class="section-label">יעדי איסוף ותעדוף</p>
+
+        <div class="targets-scroll" id="yolo-targets-list">
+          {% if yolo_targets %}
+            {% for target in yolo_targets %}
+            <div class="target-row">
+              <div class="row-inputs">
+                <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
+                <input type="text" class="tgt-eng eng-input" value="{{ target.english }}" placeholder="English">
+                <button type="button" class="delete-btn" onclick="this.closest('.target-row').remove()" title="מחק">✕</button>
+              </div>
+              <div class="sev-row">
+                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}"
+                  oninput="updateSev(this)" style="--thumb-color:#0A84FF;">
+                <span class="sev-badge {{ 'sev-high' if target.severity >= 8 else ('sev-mid' if target.severity >= 5 else 'sev-low') }}">
+                  חומרה {{ target.severity }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-targets" style="color:#3a3a3a; text-align:center; padding:30px 0; font-size:13px;">רשימת יעדים ריקה.</div>
+          {% endif %}
+        </div>
+
+        <div class="targets-scroll" id="clip-targets-list" style="display:none;">
+          {% if clip_targets %}
+            {% for target in clip_targets %}
+            <div class="target-row">
+              <div class="row-inputs">
+                <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
+                <input type="text" class="tgt-eng eng-input" value="{{ target.english }}" placeholder="English">
+                <button type="button" class="delete-btn" onclick="this.closest('.target-row').remove()" title="מחק">✕</button>
+              </div>
+              <div class="sev-row">
+                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}"
+                  oninput="updateSev(this)" style="--thumb-color:#0A84FF;">
+                <span class="sev-badge {{ 'sev-high' if target.severity >= 8 else ('sev-mid' if target.severity >= 5 else 'sev-low') }}">
+                  חומרה {{ target.severity }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-targets" style="color:#3a3a3a; text-align:center; padding:30px 0; font-size:13px;">רשימת יעדים ריקה.</div>
+          {% endif %}
+        </div>
+
+        <button type="button" class="btn-add-target" onclick="addTargetRow()">+ הוסף מטרה חדשה</button>
+        <button type="button" class="btn-save" id="btn-save" onclick="saveAiSettings()">שמור הגדרות</button>
+
+      </div>
+    </div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-title">מפענח נתונים...</div>
+        <div class="loading-desc" id="loading-count">המערכת מעבדת את החומרים, אנא המתן.</div>
     </div>
 
     <script>
@@ -272,26 +424,15 @@
         const ctx = canvas.getContext('2d');
         const W = 180, R = 85;
         let angle = 0;
-
         function pt(lat, lon, rot) {
-            const phi = lat * Math.PI / 180;
-            const lam = (lon + rot) * Math.PI / 180;
-            return {
-                x: W/2 + R * Math.cos(phi) * Math.sin(lam),
-                y: W/2 - R * Math.sin(phi),
-                z: R * Math.cos(phi) * Math.cos(lam)
-            };
+            const phi = lat * Math.PI / 180; const lam = (lon + rot) * Math.PI / 180;
+            return { x: W/2 + R * Math.cos(phi) * Math.sin(lam), y: W/2 - R * Math.sin(phi), z: R * Math.cos(phi) * Math.cos(lam) };
         }
-
         function draw(rot) {
             ctx.clearRect(0, 0, W, W);
             const g = ctx.createRadialGradient(W*0.4, W*0.35, 5, W/2, W/2, R);
-            g.addColorStop(0, '#0a2a5e');
-            g.addColorStop(0.6, '#050f28');
-            g.addColorStop(1, '#020810');
-            ctx.beginPath(); ctx.arc(W/2, W/2, R, 0, Math.PI*2);
-            ctx.fillStyle = g; ctx.fill();
-
+            g.addColorStop(0, '#0a2a5e'); g.addColorStop(0.6, '#050f28'); g.addColorStop(1, '#020810');
+            ctx.beginPath(); ctx.arc(W/2, W/2, R, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
             for (let lat = -75; lat <= 75; lat += 15) {
                 ctx.beginPath(); let first = true;
                 for (let lon = 0; lon <= 360; lon += 4) {
@@ -300,9 +441,8 @@
                     first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
                     first = false;
                 }
-                ctx.strokeStyle = 'rgba(2,190,254,0.3)'; ctx.lineWidth = 0.5; ctx.stroke();
+                ctx.strokeStyle = 'rgba(10,132,255,0.3)'; ctx.lineWidth = 0.5; ctx.stroke();
             }
-
             for (let lon = 0; lon < 360; lon += 15) {
                 ctx.beginPath(); let first = true;
                 for (let lat = -90; lat <= 90; lat += 4) {
@@ -311,31 +451,139 @@
                     first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
                     first = false;
                 }
-                ctx.strokeStyle = 'rgba(2,190,254,0.2)'; ctx.lineWidth = 0.5; ctx.stroke();
+                ctx.strokeStyle = 'rgba(10,132,255,0.2)'; ctx.lineWidth = 0.5; ctx.stroke();
             }
-
-            const eg = ctx.createRadialGradient(W/2, W/2, R*0.65, W/2, W/2, R);
-            eg.addColorStop(0, 'rgba(2,190,254,0)');
-            eg.addColorStop(1, 'rgba(2,190,254,0.2)');
-            ctx.beginPath(); ctx.arc(W/2, W/2, R, 0, Math.PI*2);
-            ctx.fillStyle = eg; ctx.fill();
-
-            ctx.beginPath(); ctx.arc(W/2, W/2, R, 0, Math.PI*2);
-            ctx.strokeStyle = 'rgba(2,190,254,0.5)'; ctx.lineWidth = 1; ctx.stroke();
         }
-
         (function animate() { angle += 0.2; draw(angle); requestAnimationFrame(animate); })();
     })();
-    /* ===== END GLOBE ===== */
 
-    /* ===== FORM LOGIC ===== */
+    /* ===== AI MODAL LOGIC ===== */
+    const aiModal = document.getElementById('aiModal');
+    let currentAiModel = 'yolo';
+
+    function openAiModal()  { aiModal.style.display = 'block'; }
+    function closeAiModal() { aiModal.style.display = 'none';  }
+
+    window.addEventListener('click', e => { if (e.target === aiModal) closeAiModal(); });
+
+    function thumbColor(v) {
+      if (v >= 8) return '#ff453a';
+      if (v >= 5) return '#ff9f0a';
+      return '#32d74b';
+    }
+
+    function updateSev(slider) {
+      const v = parseInt(slider.value);
+      const badge = slider.closest('.sev-row').querySelector('.sev-badge');
+      badge.textContent = 'חומרה ' + v;
+      badge.className = 'sev-badge ' + (v >= 8 ? 'sev-high' : v >= 5 ? 'sev-mid' : 'sev-low');
+
+      const c = thumbColor(v);
+      const pct = ((v - 1) / 9) * 100;
+      slider.style.background = `linear-gradient(to left, ${c} ${pct}%, #2a2a2a ${pct}%)`;
+      slider.style.setProperty('--thumb-color', c);
+      updateThumbStyle(slider, c);
+    }
+
+    let thumbStyleEl = null;
+    const thumbColors = {};
+    function updateThumbStyle(slider, color) {
+      if (!slider.dataset.tid) slider.dataset.tid = Math.random().toString(36).slice(2);
+      const tid = slider.dataset.tid;
+      thumbColors[tid] = color;
+      if (!thumbStyleEl) {
+        thumbStyleEl = document.createElement('style');
+        document.head.appendChild(thumbStyleEl);
+      }
+      thumbStyleEl.textContent = Object.entries(thumbColors)
+        .map(([id, c]) => `[data-tid="${id}"]::-webkit-slider-thumb { background: ${c}; }`)
+        .join('\n');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.tgt-sev').forEach(s => updateSev(s));
+    });
+
+    function selectModel(m) {
+      currentAiModel = m;
+      document.getElementById('selected_model_input').value = m;
+
+      const yoloCard = document.getElementById('card-yolo');
+      const clipCard  = document.getElementById('card-clip');
+      const yoloList  = document.getElementById('yolo-targets-list');
+      const clipList  = document.getElementById('clip-targets-list');
+
+      if (m === 'yolo') {
+        yoloCard.classList.add('active');    clipCard.classList.remove('active');
+        yoloList.style.display = 'block';   clipList.style.display = 'none';
+      } else {
+        clipCard.classList.add('active');    yoloCard.classList.remove('active');
+        clipList.style.display = 'block';   yoloList.style.display = 'none';
+      }
+    }
+
+    function switchModelView(m) { selectModel(m); }
+
+    function addTargetRow() {
+      const listId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
+      const list = document.getElementById(listId);
+
+      const emptyState = list.querySelector('.empty-targets');
+      if (emptyState) emptyState.remove();
+
+      const row = document.createElement('div');
+      row.className = 'target-row new-row';
+      row.innerHTML = `
+        <div class="row-inputs">
+          <input type="text" class="tgt-heb" placeholder="שם לתצוגה">
+          <input type="text" class="tgt-eng eng-input" placeholder="English (או עברית ונתרגם)">
+          <button type="button" class="delete-btn" onclick="this.closest('.target-row').remove()" title="מחק">✕</button>
+        </div>
+        <div class="sev-row">
+          <input type="range" class="tgt-sev" min="1" max="10" value="5" oninput="updateSev(this)">
+          <span class="sev-badge sev-mid">חומרה 5</span>
+        </div>`;
+
+      list.appendChild(row);
+      updateSev(row.querySelector('.tgt-sev'));
+
+      setTimeout(() => {
+        list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+        row.querySelector('.tgt-heb').focus();
+      }, 50);
+    }
+
+    function saveAiSettings() {
+      const listId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
+      const rows = document.querySelectorAll(`#${listId} .target-row`);
+      const targets = [];
+
+      rows.forEach(row => {
+        const eng = row.querySelector('.tgt-eng').value.trim();
+        const heb = row.querySelector('.tgt-heb').value.trim();
+        const sev = row.querySelector('.tgt-sev').value;
+        if (eng && heb) targets.push({ english: eng, hebrew: heb, severity: sev });
+      });
+
+      document.getElementById('dynamic_targets').value = JSON.stringify(targets);
+
+      const btn = document.getElementById('btn-save');
+      btn.textContent = '✓ נשמר';
+      btn.classList.add('saved');
+      setTimeout(() => {
+        btn.textContent = 'שמור הגדרות';
+        btn.classList.remove('saved');
+        closeAiModal();
+      }, 900);
+    }
+
+    /* ===== UPLOAD LOGIC ===== */
     let currentMode = 'files';
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('file-input');
     const folderInput = document.getElementById('folder-input');
     const fileMsg = document.getElementById('file-msg');
     const fileMsgSub = document.getElementById('file-msg-sub');
-    const filesMap = new Map();
 
     function setMode(mode) {
         currentMode = mode;
@@ -346,119 +594,41 @@
             fileMsg.textContent = "העבר ספריות יעד לכאן או לחץ לבחירה";
             fileMsgSub.textContent = "המערכת תסרוק את כלל התוכן בתיקייה";
         }
-        fileMsg.style.color = "#cbd5e1";
     }
 
-    dropArea.addEventListener('click', () => {
-        currentMode === 'files' ? fileInput.click() : folderInput.click();
-    });
+    dropArea.addEventListener('click', () => currentMode === 'files' ? fileInput.click() : folderInput.click());
 
-    ['dragenter','dragover','dragleave','drop'].forEach(ev =>
-        dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); })
-    );
-    ['dragenter','dragover'].forEach(ev =>
-        dropArea.addEventListener(ev, () => dropArea.classList.add('dragover'))
-    );
-    ['dragleave','drop'].forEach(ev =>
-        dropArea.addEventListener(ev, () => dropArea.classList.remove('dragover'))
-    );
+    ['dragenter','dragover','dragleave','drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+    ['dragenter','dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.style.borderColor = "var(--accent-color)"));
+    ['dragleave','drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.style.borderColor = "var(--border-color)"));
 
-    dropArea.addEventListener('drop', (e) => {
-        const items = [...e.dataTransfer.items];
-        let hasDir = false;
-        for (const item of items) {
-            const entry = item.webkitGetAsEntry();
-            if (entry && entry.isDirectory) { hasDir = true; readDirectory(entry); }
-        }
-        if (!hasDir) addFilesToList(e.dataTransfer.files);
-    });
-
-    function readDirectory(dirEntry) {
-        const reader = dirEntry.createReader();
-        reader.readEntries((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isFile) {
-                    entry.file((file) => {
-                        filesMap.set(file.name, file);
-                        const dt = new DataTransfer();
-                        filesMap.forEach(f => dt.items.add(f));
-                        fileInput.files = dt.files;
-                        updateFileName();
-                    });
-                } else if (entry.isDirectory) {
-                    readDirectory(entry);
-                }
-            });
-        });
-    }
-
-    function addFilesToList(newFiles) {
-        for (let i = 0; i < newFiles.length; i++) filesMap.set(newFiles[i].name, newFiles[i]);
-        const dt = new DataTransfer();
-        filesMap.forEach(f => dt.items.add(f));
-        fileInput.files = dt.files;
-        updateFileName();
-    }
-
-    fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) addFilesToList(e.target.files); });
-    folderInput.addEventListener('change', (e) => { if (e.target.files.length > 0) addFilesToList(e.target.files); });
+    fileInput.addEventListener('change', updateFileName);
+    folderInput.addEventListener('change', updateFileName);
 
     function updateFileName() {
-    const total = fileInput.files.length;
-    if (total > 0) {
-        fileMsg.textContent = "נקלטו " + total + " חומרי גלם במערכת";
-        fileMsg.style.color = "var(--accent-color)";
-        fileMsgSub.textContent = "המערכת מוכנה. ניתן להמשיך להזין חומרים נוספים.";
-    } else {
-        setMode(currentMode);
+        const total = fileInput.files.length + folderInput.files.length;
+        if (total > 0) {
+            fileMsg.textContent = "נקלטו " + total + " חומרי גלם במערכת";
+            fileMsg.style.color = "var(--accent-color)";
+            fileMsgSub.textContent = "המערכת מוכנה לסריקה.";
+        } else {
+            setMode(currentMode);
+        }
     }
 
-    // ✅ הוסף כאן — Preview
-    const container = document.getElementById('preview-container');
-    container.innerHTML = '';
-    const previewFiles = Array.from(fileInput.files).slice(0, 12); // מקסימום 12
-    previewFiles.forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.cssText = 'width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid rgba(2,190,254,0.3);';
-            container.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-    const form = document.getElementById('upload-form');
-    const clientErrorBox = document.getElementById('client-error');
-    const submitBtn = document.querySelector('.submit-btn');
-
-    form.addEventListener('submit', function(e) {
-        if (fileInput.files.length === 0 && folderInput.files.length === 0) {
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+        const totalFiles = fileInput.files.length + folderInput.files.length;
+        if (totalFiles === 0) {
             e.preventDefault();
-            clientErrorBox.style.display = 'block';
-            clientErrorBox.animate([
-                {transform:'translateX(0)'},{transform:'translateX(-10px)'},
-                {transform:'translateX(10px)'},{transform:'translateX(0)'}
-            ], {duration: 300});
+            document.getElementById('client-error').style.display = 'block';
         } else {
-             const allFiles = [
-                ...Array.from(fileInput.files),
-                ...Array.from(folderInput.files)
-            ];
-            const invalidFiles = allFiles.filter(f => !f.type.startsWith('image/'));
-            if (invalidFiles.length > 0) {
-                e.preventDefault();
-                clientErrorBox.textContent = `שגיאה: הקובץ "${invalidFiles[0].name}" אינו תמונה.`;
-                clientErrorBox.style.display = 'block';
-                return;
-            }
+            saveAiSettings();
 
-            clientErrorBox.style.display = 'none';
-            submitBtn.textContent = 'מבצע סריקה, אנא המתן...';
-            submitBtn.style.opacity = '0.7';
-            submitBtn.style.cursor = 'wait';
+            document.getElementById('client-error').style.display = 'none';
+            document.getElementById('main-content').style.display = 'none';
+            document.querySelector('.globe-hero').style.display = 'none';
+            document.getElementById('loading-count').textContent = 'המערכת מנתחת ' + totalFiles + ' פריטים. אנא המתן...';
+            document.getElementById('loading-overlay').style.display = 'flex';
         }
     });
     </script>
