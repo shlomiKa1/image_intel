@@ -1,6 +1,13 @@
 import os
 import shutil
 import time
+
+# ---------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(BASE_DIR)
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+# ---------------------------------------------------------
+
 from flask import Flask, render_template, request, send_file
 from deep_translator import GoogleTranslator
 import json
@@ -14,20 +21,6 @@ from timeline import create_timeline
 from vision import WorldVisionAnalyzer
 from vision_clip import ClipVisionAnalyzer
 from face_analyzer import FaceIntelligenceAnalyzer
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# --- הפתרון הדינמי ---
-# המערכת בודקת בעצמה היכן ממוקמת תיקיית static במחשב הספציפי הזה
-static_in_same_folder = os.path.join(BASE_DIR, "static")
-static_one_level_up = os.path.abspath(os.path.join(BASE_DIR, "..", "static"))
-
-if os.path.exists(static_in_same_folder):
-    STATIC_DIR = static_in_same_folder
-    print("V Static folder loaded from same directory.")
-else:
-    STATIC_DIR = static_one_level_up
-    print("V Static folder loaded from one level up (..).")
 
 app = Flask(
     __name__,
