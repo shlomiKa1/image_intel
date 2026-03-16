@@ -354,7 +354,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
                         <div class="filters-bar">
                             <h2 style="margin:0; flex-grow:1; border:none; padding:0;">פירוט נתונים וסינון</h2>
 
-                            <input type="text" id="text-filter" class="filter-input" placeholder="חיפוש חופשי בדו"ח..." onkeyup="applyFilters()" style="min-width: 150px;">
+                            <input type="text" id="text-filter" class="filter-input" placeholder="חיפוש חופשי בדוח..." onkeyup="applyFilters()" style="min-width: 150px;">
 
                             <select id="date-filter" class="filter-input" onchange="applyFilters()" style="cursor:pointer;">
                                 <option value="all">תאריך: הכל</option>
