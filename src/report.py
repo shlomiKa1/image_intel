@@ -436,6 +436,14 @@ def create_report(images_data, map_html, timeline_html, analysis):
                     closeModal();
                 }}
             }}
+            function filterTable(camera) {{
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {{
+                    // עמודה 2 היא "מקור איסוף" (המצלמה)
+                    const camCell = row.cells[1].textContent.trim();
+                    row.style.display = (camera === 'all' || camCell.includes(camera)) ? '' : 'none';
+                }});
+            }}
         </script>
     </body>
     </html>

@@ -70,6 +70,17 @@ def serve_detections(filename):
         return send_file(abs_path)
     return "Image not found", 404
 
+@app.route('/image/<path:filepath>')
+def serve_image(filepath):
+    """
+    מגיש תמונות מתיקיית uploads לציר הזמן.
+    <path:filepath> מאפשר slashes בתוך הנתיב
+    """
+    abs_path = os.path.join(os.getcwd(), filepath)
+    if os.path.exists(abs_path):
+        return send_file(abs_path)
+    return "Image not found", 404
+
 
 @app.route('/analyze', methods=['POST'])
 def analyze_images():
