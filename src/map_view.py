@@ -29,7 +29,7 @@ def sort_by_time(arr):
     :return: None
     :rtype: None
     """
-    arr.sort(key=lambda x: x.get("datetime", ""))
+    arr.sort(key=lambda x: x.get("datetime") or "")
 
 
 def get_avg(arr) -> tuple[float, float]:
