@@ -24,7 +24,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* פונט בסגנון אפל כברירת מחדל לכל האתר */
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
@@ -34,7 +33,6 @@
             min-height: 100vh; font-weight: 500; letter-spacing: 0.025em; padding: 20px;
         }
 
-        /* החלת הפונט רק על הכותרת הראשית ותיקון החיתוך שביקשת */
         h1 {
             font-family: 'Heebo', sans-serif !important;
             background: linear-gradient(90deg, #9766FF, #628CFE 60%, #0A84FF);
@@ -46,7 +44,6 @@
         h2 { margin-top: 15px; font-size: 24px; font-weight: 700; color: #fff; }
         p { margin-top: 10px; font-weight: 400; line-height: 1.5; color: var(--text-muted); }
 
-        /* ===== GLOBE HERO ===== */
         .globe-hero { display: flex; flex-direction: column; align-items: center; padding: 20px 0 0; position: relative; }
         .globe-wrap { position: relative; width: 180px; height: 180px; margin-bottom: 18px; }
         #globe-canvas { border-radius: 50%; box-shadow: 0 0 50px rgba(10,132,255,0.3), 0 0 100px rgba(10,132,255,0.15); display: block; }
@@ -63,7 +60,6 @@
 
         .desc { font-size: 15px; margin-bottom: 30px; margin-top: 0; }
 
-        /* Apple Style Radio Buttons */
         .radio-group { display: flex; flex-direction: column; align-items: flex-start; text-align: right; gap: 15px; margin-bottom: 25px; }
         .radio-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 15px; line-height: 1.4; color: var(--text-color); }
         .radio-label input[type="radio"] {
@@ -103,55 +99,183 @@
 
         .error-box { background-color: rgba(255, 59, 48, 0.1); border: 1px solid #ff3b30; color: #ff453a; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; display: none; }
 
-        /* ===== חלון צף (Modal) להגדרות ה-AI ===== */
-        .ai-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-        .ai-modal-content {
-            background-color: var(--container-bg); margin: 5% auto; padding: 35px 30px;
-            border-radius: 24px; width: 90%; max-width: 550px; border: 1px solid var(--border-color);
-            position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: right;
-            max-height: 85vh; display: flex; flex-direction: column;
-            overflow-y: auto;
+        /* ===== Modal overlay ===== */
+        .ai-modal {
+            display: none; position: fixed; z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.82);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
-        .close-btn { position: absolute; top: 20px; left: 25px; font-size: 32px; font-weight: 300; cursor: pointer; color: var(--text-muted); transition: 0.2s; line-height: 1; }
-        .close-btn:hover { color: white; }
 
-        .settings-section { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-        .settings-section h3 { margin-top: 0; margin-bottom: 15px; font-size: 16px; color: var(--text-color); }
+        .ai-modal-content {
+            background-color: #141414;
+            margin: 4% auto;
+            padding: 28px 24px 22px;
+            border-radius: 20px;
+            width: 90%; max-width: 540px;
+            border: 0.5px solid #2a2a2a;
+            position: relative;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+            text-align: right;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-        .targets-container { overflow-y: auto; padding-left: 5px; flex-grow: 1; min-height: 150px; margin-bottom: 10px; }
-        .targets-container::-webkit-scrollbar { width: 6px; }
-        .targets-container::-webkit-scrollbar-track { background: transparent; }
-        .targets-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .close-btn {
+            position: absolute; top: 18px; left: 22px;
+            font-size: 28px; font-weight: 300;
+            cursor: pointer; color: #555; transition: color 0.2s;
+            line-height: 1; background: none; border: none; padding: 0;
+        }
+        .close-btn:hover { color: #ccc; }
+
+        .model-cards {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-bottom: 22px;
+        }
+
+        .model-card {
+            border: 0.5px solid #2a2a2a;
+            background: #1c1c1c;
+            border-radius: 14px; padding: 14px 16px;
+            cursor: pointer; transition: all 0.18s ease;
+            text-align: right;
+        }
+        .model-card:hover { border-color: #3a3a3a; background: #222; }
+        .model-card.active {
+            border: 1.5px solid #0A84FF;
+            background: rgba(10,132,255,0.08);
+        }
+        .model-card .mc-title {
+            font-size: 13px; font-weight: 600;
+            color: #ccc; margin: 0 0 4px; transition: color 0.18s;
+        }
+        .model-card.active .mc-title { color: #4da3ff; }
+        .model-card .mc-sub {
+            font-size: 11px; color: #555; margin: 0; font-weight: 400;
+        }
+        .model-card .mc-tag {
+            display: inline-block; font-size: 10px; font-weight: 600;
+            padding: 2px 7px; border-radius: 20px;
+            background: #222; color: #666;
+            margin-bottom: 6px; letter-spacing: 0.5px;
+            transition: all 0.18s;
+        }
+        .model-card.active .mc-tag {
+            background: rgba(10,132,255,0.15); color: #0A84FF;
+        }
+
+        .section-label {
+            font-size: 12px; font-weight: 600; color: #555;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            margin-bottom: 10px; margin-top: 0;
+        }
+
+        .targets-scroll {
+            overflow-y: auto; flex: 1;
+            min-height: 160px; max-height: 340px;
+            padding-left: 2px; margin-bottom: 10px;
+            scrollbar-width: thin; scrollbar-color: #2a2a2a transparent;
+        }
+        .targets-scroll::-webkit-scrollbar { width: 5px; }
+        .targets-scroll::-webkit-scrollbar-track { background: transparent; }
+        .targets-scroll::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
 
         .target-row {
-            display: flex; gap: 10px; align-items: center; margin-bottom: 12px;
-            background: #1c1c1e; padding: 12px; border-radius: 12px; border: 1px solid #2c2c2e;
-            transition: all 0.3s ease;
+            background: #1a1a1a;
+            border: 0.5px solid #252525;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
+        }
+        .target-row:hover { border-color: #333; }
+        .target-row .row-inputs {
+            display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
         }
         .target-row input[type="text"] {
-            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #38383a;
-            background: #000; color: white; font-family: inherit; font-size: 13px; outline: none;
+            flex: 1; padding: 7px 10px;
+            border-radius: 8px; border: 0.5px solid #2a2a2a;
+            background: #0d0d0d; color: #e0e0e0;
+            font-family: inherit; font-size: 13px; outline: none;
+            transition: border-color 0.15s;
         }
-        .target-row input[type="text"]:focus { border-color: var(--accent-color); }
-        .slider-box { display: flex; flex-direction: column; width: 100%; max-width: 100px; }
-        .slider-box label { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 5px; }
-        .slider-box input[type="range"] { accent-color: var(--accent-color); width: 100%; cursor: pointer; }
+        .target-row input[type="text"]:focus { border-color: #0A84FF; }
+        .target-row input[type="text"]::placeholder { color: #3a3a3a; }
+        .target-row .eng-input { color: #666 !important; direction: ltr; }
 
-        /* אפקט הדגשה לשורה חדשה */
-        .highlight-new {
-            animation: highlightPulse 2.5s ease-out forwards;
-            border-right: 4px solid var(--accent-color) !important;
+        .delete-btn {
+            width: 30px; height: 30px; flex-shrink: 0;
+            border-radius: 8px; border: 0.5px solid #2a2a2a;
+            background: none; color: #444; font-size: 14px;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: all 0.15s; line-height: 1;
         }
-        @keyframes highlightPulse {
-            0% { background-color: rgba(10, 132, 255, 0.2); transform: scale(1.02); }
-            100% { background-color: #1c1c1e; transform: scale(1); }
+        .delete-btn:hover { border-color: #ff453a; color: #ff453a; background: rgba(255,69,58,0.06); }
+
+        .sev-row {
+            display: flex; align-items: center; gap: 10px;
         }
+        .sev-row input[type="range"] {
+            flex: 1; height: 4px; cursor: pointer;
+            -webkit-appearance: none; appearance: none;
+            background: #2a2a2a; border-radius: 2px; outline: none;
+        }
+        .sev-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px;
+            border-radius: 50%; cursor: pointer;
+            border: 2px solid #0d0d0d;
+            transition: transform 0.1s;
+        }
+        .sev-row input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-        .btn-add { background: #2c2c2e; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; font-family: inherit; margin-bottom: 10px; transition: 0.2s; }
-        .btn-add:hover { background: #3a3a3c; }
-        .btn-save { background: var(--accent-color); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; font-family: inherit; }
+        .sev-badge {
+            font-size: 11px; font-weight: 600;
+            padding: 3px 9px; border-radius: 20px;
+            min-width: 56px; text-align: center;
+            flex-shrink: 0; transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .sev-high  { background: rgba(255,69,58,0.12);  color: #ff6961; }
+        .sev-mid   { background: rgba(255,159,10,0.12); color: #ff9f0a; }
+        .sev-low   { background: rgba(48,209,88,0.10);  color: #32d74b; }
 
-        /* מסך טעינה */
+        @keyframes rowIn {
+            from { opacity: 0; transform: translateY(-6px); border-color: rgba(10,132,255,0.5); }
+            to   { opacity: 1; transform: none; border-color: #252525; }
+        }
+        .target-row.new-row { animation: rowIn 0.3s ease forwards; }
+
+        .btn-add-target {
+            width: 100%; padding: 10px;
+            border-radius: 10px;
+            border: 0.5px dashed #2a2a2a;
+            background: none; color: #444;
+            font-size: 13px; font-family: inherit;
+            cursor: pointer; margin-bottom: 14px;
+            transition: all 0.15s;
+        }
+        .btn-add-target:hover { border-color: #0A84FF; color: #0A84FF; background: rgba(10,132,255,0.04); }
+
+        .btn-save {
+            background: #0A84FF; color: #fff;
+            border: none; padding: 13px;
+            border-radius: 12px; font-size: 14px; font-weight: 600;
+            cursor: pointer; width: 100%; font-family: inherit;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-save:hover  { background: #0071e3; }
+        .btn-save:active { transform: scale(0.98); }
+
+        @keyframes savedPop {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .btn-save.saved { background: #1c7a3a; animation: savedPop 0.35s ease; }
+
         #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .spinner { width: 50px; height: 50px; border: 3px solid #38383a; border-top: 3px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -206,79 +330,85 @@
             <button type="button" class="btn-settings" onclick="openAiModal()">הגדרות מנוע סריקה ויעדי איסוף</button>
 
             <input type="hidden" name="ai_model" id="selected_model_input" value="yolo">
-            <input type="hidden" name="dynamic_targets" id="dynamic_targets">
+            <input type="hidden" name="dynamic_targets" id="dynamic_targets" value="[]">
 
             <button type="submit" class="submit-btn">הפעל סריקה מבצעית</button>
         </form>
     </div>
 
     <div id="aiModal" class="ai-modal">
-        <div class="ai-modal-content">
-            <span class="close-btn" onclick="closeAiModal()">×</span>
-            <h2>הגדרות מנוע סריקה</h2>
-            <p>בחר את המודל המודיעיני הנדרש למשימה זו ונהל את מטרות האיסוף שלו.</p>
+      <div class="ai-modal-content">
 
-            <div class="settings-section">
-                <h3>בחירת מודל פענוח</h3>
-                <div class="radio-group" style="margin-bottom: 0;">
-                    <label class="radio-label">
-                        <input type="radio" name="modal_model_select" value="yolo" checked onchange="switchModelView('yolo')">
-                        <div>
-                            סריקה טקטית (YOLO-World)
-                            <span class="radio-subtext">איתור נקודתי מהיר של פריטים ספציפיים במרחב.</span>
-                        </div>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="modal_model_select" value="clip" onchange="switchModelView('clip')">
-                        <div>
-                            סריקה הקשרית (CLIP)
-                            <span class="radio-subtext">סיווג עמוק של סצנות, אווירה והקשר כללי של התמונה.</span>
-                        </div>
-                    </label>
-                </div>
-            </div>
+        <button class="close-btn" onclick="closeAiModal()">×</button>
 
-            <div class="settings-section" style="flex-grow: 1; display: flex; flex-direction: column;">
-                <h3>יעדי איסוף ותעדוף</h3>
-                <p style="margin-top:0; margin-bottom: 15px;">קבע רמת חשיבות (1-10) לכל מטרה. מטרות בציון גבוה יוקפצו לראש הדו"ח. ניתן להוסיף מטרות חדשות בעברית והמערכת תתרגם אותן.</p>
+        <h2 style="margin:0 0 4px; font-size:17px; font-weight:700; color:#fff;">הגדרות מנוע סריקה</h2>
+        <p style="margin:0 0 20px; font-size:13px; color:#666; font-weight:400;">בחר מודל ונהל את יעדי האיסוף שלו.</p>
 
-                <div class="targets-container" id="yolo-targets-list">
-                    {% if yolo_targets %}
-                        {% for target in yolo_targets %}
-                        <div class="target-row">
-                            <input type="text" class="tgt-eng" value="{{ target.english }}" placeholder="באנגלית" readonly style="color:#64748b;">
-                            <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
-                            <div class="slider-box">
-                                <label>חשיבות: <span class="val-disp">{{ target.severity }}</span></label>
-                                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}" oninput="this.previousElementSibling.querySelector('.val-disp').innerText = this.value">
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div style="color: #64748b; text-align: center; margin-top: 20px;">רשימת יעדים ריקה. וודא ש-app.py מעודכן.</div>
-                    {% endif %}
-                </div>
-
-                <div class="targets-container" id="clip-targets-list" style="display: none;">
-                    {% if clip_targets %}
-                        {% for target in clip_targets %}
-                        <div class="target-row">
-                            <input type="text" class="tgt-eng" value="{{ target.english }}" placeholder="באנגלית" readonly style="color:#64748b;">
-                            <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
-                            <div class="slider-box">
-                                <label>חשיבות: <span class="val-disp">{{ target.severity }}</span></label>
-                                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}" oninput="this.previousElementSibling.querySelector('.val-disp').innerText = this.value">
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-
-                <button type="button" class="btn-add" onclick="addTargetRow()">+ הוסף מטרה חדשה</button>
-            </div>
-
-            <button type="button" class="btn-save" onclick="saveAiSettings()">שמור הגדרות</button>
+        <div class="model-cards">
+          <div class="model-card active" id="card-yolo" onclick="selectModel('yolo')">
+            <p class="mc-tag">YOLO-World</p>
+            <p class="mc-title">סריקה טקטית</p>
+            <p class="mc-sub">איתור נקודתי מהיר של פריטים ספציפיים</p>
+          </div>
+          <div class="model-card" id="card-clip" onclick="selectModel('clip')">
+            <p class="mc-tag">CLIP</p>
+            <p class="mc-title">סריקה הקשרית</p>
+            <p class="mc-sub">סיווג סצנות ואווירה כללית</p>
+          </div>
         </div>
+
+        <p class="section-label">יעדי איסוף ותעדוף</p>
+
+        <div class="targets-scroll" id="yolo-targets-list">
+          {% if yolo_targets %}
+            {% for target in yolo_targets %}
+            <div class="target-row">
+              <div class="row-inputs">
+                <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
+                <input type="text" class="tgt-eng eng-input" value="{{ target.english }}" placeholder="English">
+                <button type="button" class="delete-btn" onclick="this.closest('.target-row').remove()" title="מחק">✕</button>
+              </div>
+              <div class="sev-row">
+                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}"
+                  oninput="updateSev(this)" style="--thumb-color:#0A84FF;">
+                <span class="sev-badge {{ 'sev-high' if target.severity >= 8 else ('sev-mid' if target.severity >= 5 else 'sev-low') }}">
+                  חומרה {{ target.severity }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-targets" style="color:#3a3a3a; text-align:center; padding:30px 0; font-size:13px;">רשימת יעדים ריקה.</div>
+          {% endif %}
+        </div>
+
+        <div class="targets-scroll" id="clip-targets-list" style="display:none;">
+          {% if clip_targets %}
+            {% for target in clip_targets %}
+            <div class="target-row">
+              <div class="row-inputs">
+                <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
+                <input type="text" class="tgt-eng eng-input" value="{{ target.english }}" placeholder="English">
+                <button type="button" class="delete-btn" onclick="this.closest('.target-row').remove()" title="מחק">✕</button>
+              </div>
+              <div class="sev-row">
+                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}"
+                  oninput="updateSev(this)" style="--thumb-color:#0A84FF;">
+                <span class="sev-badge {{ 'sev-high' if target.severity >= 8 else ('sev-mid' if target.severity >= 5 else 'sev-low') }}">
+                  חומרה {{ target.severity }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-targets" style="color:#3a3a3a; text-align:center; padding:30px 0; font-size:13px;">רשימת יעדים ריקה.</div>
+          {% endif %}
+        </div>
+
+        <button type="button" class="btn-add-target" onclick="addTargetRow()">+ הוסף מטרה חדשה</button>
+        <button type="button" class="btn-save" id="btn-save" onclick="saveAiSettings()">שמור הגדרות</button>
+
+      </div>
     </div>
 
     <div id="loading-overlay">
@@ -331,67 +461,120 @@
     const aiModal = document.getElementById('aiModal');
     let currentAiModel = 'yolo';
 
-    function openAiModal() { aiModal.style.display = 'block'; }
-    function closeAiModal() { aiModal.style.display = 'none'; }
+    function openAiModal()  { aiModal.style.display = 'block'; }
+    function closeAiModal() { aiModal.style.display = 'none';  }
 
-    window.onclick = function(event) {
-        if (event.target == aiModal) { closeAiModal(); }
+    window.addEventListener('click', e => { if (e.target === aiModal) closeAiModal(); });
+
+    function thumbColor(v) {
+      if (v >= 8) return '#ff453a';
+      if (v >= 5) return '#ff9f0a';
+      return '#32d74b';
     }
 
-    // החלפת תצוגת מילון מטרות לפי המודל הנבחר
-    function switchModelView(modelType) {
-        currentAiModel = modelType;
-        document.getElementById('selected_model_input').value = modelType;
+    function updateSev(slider) {
+      const v = parseInt(slider.value);
+      const badge = slider.closest('.sev-row').querySelector('.sev-badge');
+      badge.textContent = 'חומרה ' + v;
+      badge.className = 'sev-badge ' + (v >= 8 ? 'sev-high' : v >= 5 ? 'sev-mid' : 'sev-low');
 
-        if(modelType === 'yolo') {
-            document.getElementById('yolo-targets-list').style.display = 'block';
-            document.getElementById('clip-targets-list').style.display = 'none';
-        } else {
-            document.getElementById('yolo-targets-list').style.display = 'none';
-            document.getElementById('clip-targets-list').style.display = 'block';
-        }
+      const c = thumbColor(v);
+      const pct = ((v - 1) / 9) * 100;
+      slider.style.background = `linear-gradient(to left, ${c} ${pct}%, #2a2a2a ${pct}%)`;
+      slider.style.setProperty('--thumb-color', c);
+      updateThumbStyle(slider, c);
     }
+
+    let thumbStyleEl = null;
+    const thumbColors = {};
+    function updateThumbStyle(slider, color) {
+      if (!slider.dataset.tid) slider.dataset.tid = Math.random().toString(36).slice(2);
+      const tid = slider.dataset.tid;
+      thumbColors[tid] = color;
+      if (!thumbStyleEl) {
+        thumbStyleEl = document.createElement('style');
+        document.head.appendChild(thumbStyleEl);
+      }
+      thumbStyleEl.textContent = Object.entries(thumbColors)
+        .map(([id, c]) => `[data-tid="${id}"]::-webkit-slider-thumb { background: ${c}; }`)
+        .join('\n');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.tgt-sev').forEach(s => updateSev(s));
+    });
+
+    function selectModel(m) {
+      currentAiModel = m;
+      document.getElementById('selected_model_input').value = m;
+
+      const yoloCard = document.getElementById('card-yolo');
+      const clipCard  = document.getElementById('card-clip');
+      const yoloList  = document.getElementById('yolo-targets-list');
+      const clipList  = document.getElementById('clip-targets-list');
+
+      if (m === 'yolo') {
+        yoloCard.classList.add('active');    clipCard.classList.remove('active');
+        yoloList.style.display = 'block';   clipList.style.display = 'none';
+      } else {
+        clipCard.classList.add('active');    yoloCard.classList.remove('active');
+        clipList.style.display = 'block';   yoloList.style.display = 'none';
+      }
+    }
+
+    function switchModelView(m) { selectModel(m); }
 
     function addTargetRow() {
-        const activeListId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
-        const list = document.getElementById(activeListId);
+      const listId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
+      const list = document.getElementById(listId);
 
-        const row = document.createElement('div');
-        row.className = 'target-row highlight-new';
-        row.innerHTML = `
-            <input type="text" class="tgt-eng" placeholder="אנגלית (או עברית ונתרגם)">
-            <input type="text" class="tgt-heb" placeholder="שם לתצוגה">
-            <div class="slider-box">
-                <label>חשיבות: <span class="val-disp">5</span></label>
-                <input type="range" class="tgt-sev" min="1" max="10" value="5" oninput="this.previousElementSibling.querySelector('.val-disp').innerText = this.value">
-            </div>
-        `;
+      const emptyState = list.querySelector('.empty-targets');
+      if (emptyState) emptyState.remove();
 
-        list.appendChild(row); // הוספה לתחתית הרשימה
+      const row = document.createElement('div');
+      row.className = 'target-row new-row';
+      row.innerHTML = `
+        <div class="row-inputs">
+          <input type="text" class="tgt-heb" placeholder="שם לתצוגה">
+          <input type="text" class="tgt-eng eng-input" placeholder="English (או עברית ונתרגם)">
+          <button type="button" class="delete-btn" onclick="this.closest('.target-row').remove()" title="מחק">✕</button>
+        </div>
+        <div class="sev-row">
+          <input type="range" class="tgt-sev" min="1" max="10" value="5" oninput="updateSev(this)">
+          <span class="sev-badge sev-mid">חומרה 5</span>
+        </div>`;
 
-        // גלילה חלקה לשורה החדשה ופוקוס על שדה ההקלדה כדי שיהיה ברור למשתמש
-        setTimeout(() => {
-            list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
-            row.querySelector('.tgt-eng').focus();
-        }, 50);
+      list.appendChild(row);
+      updateSev(row.querySelector('.tgt-sev'));
+
+      setTimeout(() => {
+        list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+        row.querySelector('.tgt-heb').focus();
+      }, 50);
     }
 
     function saveAiSettings() {
-        const activeListId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
-        const rows = document.querySelectorAll(`#${activeListId} .target-row`);
-        const targets = [];
+      const listId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
+      const rows = document.querySelectorAll(`#${listId} .target-row`);
+      const targets = [];
 
-        rows.forEach(row => {
-            const eng = row.querySelector('.tgt-eng').value.trim();
-            const heb = row.querySelector('.tgt-heb').value.trim();
-            const sev = row.querySelector('.tgt-sev').value;
-            if(eng && heb) {
-                targets.push({english: eng, hebrew: heb, severity: sev});
-            }
-        });
+      rows.forEach(row => {
+        const eng = row.querySelector('.tgt-eng').value.trim();
+        const heb = row.querySelector('.tgt-heb').value.trim();
+        const sev = row.querySelector('.tgt-sev').value;
+        if (eng && heb) targets.push({ english: eng, hebrew: heb, severity: sev });
+      });
 
-        document.getElementById('dynamic_targets').value = JSON.stringify(targets);
+      document.getElementById('dynamic_targets').value = JSON.stringify(targets);
+
+      const btn = document.getElementById('btn-save');
+      btn.textContent = '✓ נשמר';
+      btn.classList.add('saved');
+      setTimeout(() => {
+        btn.textContent = 'שמור הגדרות';
+        btn.classList.remove('saved');
         closeAiModal();
+      }, 900);
     }
 
     /* ===== UPLOAD LOGIC ===== */
@@ -439,7 +622,6 @@
             e.preventDefault();
             document.getElementById('client-error').style.display = 'block';
         } else {
-            // שמירת ההגדרות (גם אם המשתמש לא לחץ שמור וסגור אלא ישר הפעיל סריקה)
             saveAiSettings();
 
             document.getElementById('client-error').style.display = 'none';
