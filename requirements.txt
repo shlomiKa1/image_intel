@@ -1,35 +1,34 @@
-flask
-Pillow
-piexif
-folium
-matplotlib
-pytest
-
 # --- Web Server & API ---
 Flask
-flask
 Werkzeug
-tf-keras
 
 # --- Image Processing & EXIF ---
 Pillow
 pillow-heif
-numpy
 opencv-python
+piexif
 
-# --- AI Models (Vision & Context) ---
+# --- AI Models & Machine Learning ---
 ultralytics
 torch
 torchvision
-git+https://github.com/openai/CLIP.git
+transformers==4.41.2
+timm
+einops
 huggingface-hub
+tf-keras
+deepface
+git+https://github.com/openai/CLIP.git
 
-# --- Utilities & Services ---
+# --- Utilities & Data ---
 deep-translator
 geopy
+numpy
 
 # --- Mapping & UI ---
 folium
 branca
+matplotlib
 
-deepface
+# --- Testing ---
+pytest

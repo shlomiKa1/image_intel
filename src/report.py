@@ -13,7 +13,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
     images_with_gps = analysis.get("images_with_gps") or sum(1 for img in (images_data or []) if img.get("latitude"))
     cameras_count = len(unique_cameras)
 
-    # --- הוספה: משיכת נתוני זמן עיבוד וזיהוי פנים ---
+    # --- משיכת נתוני זמן עיבוד וזיהוי פנים ---
     processing_time = analysis.get("processing_time", 0)
     faces_data = analysis.get("faces_data", [])
 
@@ -73,7 +73,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
         lat = image.get("latitude")
         lon = image.get("longitude")
 
-        # --- תיקון הקישור לגוגל מפות והתצוגה שביקשת ---
+        # --- קישור לגוגל מפות ---
         if image.get("has_gps") and lat and lon:
             maps_url = f"https://www.google.com/maps?q={lat},{lon}"
             has_gps = f"<span style='color:#1d1d1f; font-weight:600;'>עיר / אזור: {city}</span><br><a href='{maps_url}' target='_blank' style='color:#0A84FF; font-weight:600; text-decoration:none;'>📍 למיקום המדוייק</a>"
@@ -88,7 +88,6 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
         detections_html = "<div class='detections-list'>"
         for det in ai_detections:
-            # ללא אימוג'ים
             detections_html += f"<div class='det-item'>{html_module.escape(str(det))}</div>"
         detections_html += "</div>"
 
@@ -126,7 +125,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
     if not images_table_html:
         images_table_html = "<tr><td colspan='5' style='text-align:center;'>לא נמצאו תמונות להצגה</td></tr>"
 
-    # --- הוספה: יצירת טבלת זיהוי הפנים ---
+    # --- יצירת טבלת זיהוי הפנים (מעודכן: ללא עמודות גיל ומוצא) ---
     faces_html = ""
     for face in faces_data:
         crop_path = html_module.escape(str(face.get("crop_path", "")))
@@ -134,16 +133,19 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
         appearances_list = face.get("appearances", [])
         appearances_str = "<br>".join([html_module.escape(str(a)) for a in appearances_list])
+        # יצירת מחרוזת של שמות הקבצים להעברה ל-JS
+        appearances_joined = " ".join([html_module.escape(str(a)) for a in appearances_list])
 
         name = html_module.escape(str(face.get("name", "לא ידוע")))
-        age = html_module.escape(str(face.get("age", "לא ידוע")))
-        race = html_module.escape(str(face.get("race", "לא ידוע")))
         is_target = face.get("is_target", False)
 
+        # יצירת פעולת הלחיצה לסינון
+        onclick_action = f"searchByPerson('{appearances_joined}')"
+
         if is_target:
-            name_display = f"<span style='color: #0A84FF; font-weight: 800;'>{name}</span><br><span style='color:#32d74b; font-size:12px; font-weight:600;'>(מטרת חוקר)</span>"
+            name_display = f"<span style='color: #0A84FF; font-weight: 800; cursor: pointer; text-decoration: underline;' onclick=\"{onclick_action}\">{name}</span><br><span style='color:#32d74b; font-size:12px; font-weight:600;'>(מטרת חוקר)</span>"
         else:
-            name_display = f"<span style='font-weight: 600; color:var(--text-dark);'>{name}</span>"
+            name_display = f"<span style='font-weight: 600; color:var(--text-dark); cursor: pointer; text-decoration: underline;' onclick=\"{onclick_action}\">{name}</span>"
 
         faces_html += f"""
         <tr>
@@ -154,14 +156,13 @@ def create_report(images_data, map_html, timeline_html, analysis):
                 </div>
             </td>
             <td dir="ltr" style="text-align: right; font-size:13px; color:var(--text-muted); line-height:1.6;">{appearances_str}</td>
-            <td dir="ltr" style="text-align: right; font-weight: 600;">{age}</td>
-            <td>{race}</td>
             <td>{name_display}</td>
         </tr>
         """
 
     if not faces_html:
-        faces_html = "<tr><td colspan='5' style='text-align:center; padding: 30px; color:#86868b;'>לא הופעל זיהוי פנים, או שלא אותרו דמויות אנושיות במהלך הסריקה.</td></tr>"
+        # שינוי colspan ל-3 בהתאם למספר העמודות החדש
+        faces_html = "<tr><td colspan='3' style='text-align:center; padding: 30px; color:#86868b;'>לא הופעל זיהוי פנים, או שלא אותרו דמויות אנושיות במהלך הסריקה.</td></tr>"
 
     map_html = map_html or "<div class='placeholder-box'>אין נתוני מיקום להצגת מפה</div>"
     timeline_html = timeline_html or "<div class='placeholder-box'>אין נתוני זמן להצגת ציר הזמן</div>"
@@ -199,7 +200,6 @@ def create_report(images_data, map_html, timeline_html, analysis):
                 letter-spacing: 0.01em;
             }}
 
-            /* החלת הפונט הקודם (Heebo) רק על הכותרות הראשיות */
             h1, h2, .sidebar-logo {{ font-family: 'Heebo', sans-serif !important; }}
 
             .hero-bg-wrapper {{ position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: -2; overflow: hidden; }}
@@ -207,6 +207,7 @@ def create_report(images_data, map_html, timeline_html, analysis):
             .earth-background::after {{ content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(circle at 20% 50%, rgba(10,132,255,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99,102,241,0.1) 0%, transparent 40%), radial-gradient(circle at 60% 80%, rgba(16,185,129,0.08) 0%, transparent 35%); }}
             .overlay {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(5,5,5,0.4), rgba(5,5,5,0.95)); z-index: -1; }}
 
+            /* עדכון סדר הכפתורים ב-Sidebar */
             .sidebar {{ width: 260px; background-color: var(--sidebar-bg); height: 100vh; position: fixed; right: 0; top: 0; padding: 40px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; z-index: 100; border-left: 1px solid rgba(255,255,255,0.05); box-shadow: -5px 0 20px rgba(0,0,0,0.5); }}
             .sidebar-logo {{ font-size: 2.2em; font-weight: 800; color: var(--brand-blue); margin-bottom: 30px; text-align: center; line-height: 1.1; }}
             .sidebar-logo span {{ display: block; font-size: 0.4em; font-weight: 500; color: #94a3b8; margin-top: 5px; font-family: -apple-system, BlinkMacSystemFont, sans-serif !important; }}
@@ -274,12 +275,10 @@ def create_report(images_data, map_html, timeline_html, analysis):
             .devices-grid {{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }}
             .device-badge {{ background: #1d1d1f; color: #f5f5f7; padding: 10px 20px; border-radius: 20px; font-size: 15px; font-weight: 600; cursor: default; border: 1px solid #38383a; }}
 
-            /* שורת סינונים עליונה */
             .filters-bar {{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }}
             .filter-input {{ padding: 8px 14px; border-radius: 10px; border: 1px solid #d2d2d7; font-size: 14px; font-weight: 500; font-family: inherit; color: var(--text-dark); background: white; outline: none; }}
             .filter-input:focus {{ border-color: var(--brand-blue); }}
 
-            /* Modal ללא טשטוש כבד כדי למנוע איטיות בגלילה */
             .modal {{ display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0, 0.9); }}
             .modal-content {{ margin: auto; display: block; max-width: 90%; max-height: 85vh; border-radius: 12px; position: relative; top: 50px; }}
             .close-modal {{ position: absolute; top: 25px; left: 40px; color: #fff; font-size: 40px; font-weight: 300; cursor: pointer; transition: 0.2s; }}
@@ -293,7 +292,8 @@ def create_report(images_data, map_html, timeline_html, analysis):
         <div class="sidebar">
             <div class="sidebar-logo">Image Intel<span>מערכת מודיעין ויזואלי</span></div>
             <a href="#hero">מסך פתיחה</a>
-            <a href="#faces">זיהוי פנים ודמוגרפיה</a> <a href="#details">פירוט נתונים</a>
+            <a href="#details">פירוט נתונים וסינון</a>
+            <a href="#faces">זיהוי פנים ומעקבים</a>
             <a href="#insights">תובנות מבצעיות</a>
             <a href="#map">מפה גיאוגרפית</a>
             <a href="#timeline">ציר זמן</a>
@@ -328,27 +328,6 @@ def create_report(images_data, map_html, timeline_html, analysis):
 
             <div class="content-wrapper">
                 <div class="container">
-
-                    <div class="section scroll-animate" id="faces">
-                        <h2>זיהוי פנים וניתוח דמוגרפי</h2>
-                        <div class="collapsible-content" id="faces-content">
-                        <table id="faces-table">
-                            <thead>
-                                <tr>
-                                    <th>תמונת פנים</th>
-                                    <th>תמונות שבהם זוהה (תצוגה)</th>
-                                    <th>גיל משוער</th>
-                                    <th>מוצא משוער</th>
-                                    <th>שם / זיהוי</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {faces_html}
-                            </tbody>
-                        </table>
-                        </div>
-                        <button class="toggle-btn" onclick="toggleSection('faces-content', this)">הצג הכל</button>
-                    </div>
 
                     <div class="section scroll-animate" id="details">
                         <div class="filters-bar">
@@ -390,6 +369,25 @@ def create_report(images_data, map_html, timeline_html, analysis):
                         </div>
                         <button class="toggle-btn" onclick="toggleSection('details-content', this)">הצג הכל</button>
 
+                    </div>
+
+                    <div class="section scroll-animate" id="faces">
+                        <h2>זיהוי פנים ומעקבים</h2>
+                        <div class="collapsible-content" id="faces-content">
+                        <table id="faces-table">
+                            <thead>
+                                <tr>
+                                    <th>תמונת פנים</th>
+                                    <th>תמונות בהן זוהה</th>
+                                    <th>שם / זיהוי (לחץ לסינון)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {faces_html}
+                            </tbody>
+                        </table>
+                        </div>
+                        <button class="toggle-btn" onclick="toggleSection('faces-content', this)">הצג הכל</button>
                     </div>
 
                     <div class="section scroll-animate" id="insights">
@@ -442,9 +440,8 @@ def create_report(images_data, map_html, timeline_html, analysis):
                         const target = parseFloat(targetStr) || 0;
                         const count = parseFloat(counter.innerText) || 0;
                         const inc = target / speed;
-                        
+
                         if (count < target) {{ 
-                            // אבחנה מדויקת בין מספרים שלמים (תמונות) למספרים עשרוניים (שניות)
                             if (targetStr.includes('.')) {{
                                 counter.innerText = (count + inc).toFixed(2); 
                             }} else {{
@@ -473,12 +470,24 @@ def create_report(images_data, map_html, timeline_html, analysis):
                 btn.textContent = el.classList.contains('expanded') ? 'סגור הצגה' : 'הצג הכל';
             }}
 
-            // סינון משולב חכם: מצלמה, GPS/עיר, תאריך וטקסט חופשי
+            // הפונקציה החדשה לסינון מהיר לפי איש קשר (זיהוי פנים)
+            function searchByPerson(filenames) {{
+                const searchInput = document.getElementById('text-filter');
+                searchInput.value = filenames; // מזין את שמות הקבצים לשורת החיפוש
+
+                // גלילה חלקה מעלה לטבלת התמונות
+                document.getElementById('details').scrollIntoView({{behavior: 'smooth'}});
+
+                // הפעלת מנוע הסינון
+                applyFilters();
+            }}
+
+            // סינון משולב חכם: מצלמה, עיר, תאריך וטקסט חופשי (משודרג לתמיכה בחיפוש מרובה)
             function applyFilters() {{
                 const cameraFilter = document.getElementById('camera-filter').value;
                 const cityFilter = document.getElementById('city-filter').value;
                 const dateFilter = document.getElementById('date-filter').value;
-                const textFilter = document.getElementById('text-filter').value.toLowerCase();
+                const textFilter = document.getElementById('text-filter').value.toLowerCase().trim();
 
                 const rows = document.querySelectorAll('#intel-table tbody tr');
 
@@ -493,7 +502,13 @@ def create_report(images_data, map_html, timeline_html, analysis):
                     const matchCamera = (cameraFilter === 'all' || camCell.includes(cameraFilter));
                     const matchCity = (cityFilter === 'all' || cityHidden === cityFilter);
                     const matchDate = (dateFilter === 'all' || dateHidden === dateFilter);
-                    const matchText = (textFilter === '' || hiddenData.includes(textFilter));
+
+                    // מנוע חיפוש טקסט חופשי משודרג (מאפשר OR בין מילים, מעולה לסינון מספר תמונות יחד)
+                    let matchText = true;
+                    if (textFilter !== '') {{
+                        const terms = textFilter.split(' ').filter(t => t !== '');
+                        matchText = terms.some(term => hiddenData.includes(term));
+                    }}
 
                     row.style.display = (matchCamera && matchCity && matchDate && matchText) ? '' : 'none';
                 }});

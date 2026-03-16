@@ -15,9 +15,8 @@ class FaceIntelligenceAnalyzer:
         self.output_dir = base_output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
-        # החלפנו ל-ArcFace שהוא המודל המדויק ביותר כיום ב-DeepFace
         self.recognition_model = "ArcFace"
-        self.detector_backend = "retinaface"
+        self.detector_backend = "opencv"
 
         self.identities_db = {}
         self.unknown_counter = 1
@@ -50,8 +49,6 @@ class FaceIntelligenceAnalyzer:
                     "name": target_name,
                     "embedding": face_embedding,
                     "is_target": True,
-                    "age": "ידוע (מטרת חוקר)",
-                    "race": "ידוע (מטרת חוקר)",
                     "appearances": [],
                     "crop_path": filename  # שומרים את שם התמונה של החוקר
                 }
@@ -63,85 +60,112 @@ class FaceIntelligenceAnalyzer:
             print(f"שגיאה בקליטת פני יעד '{target_name}': {e}")
             return False
 
-    def process_image(self, image_path, source_filename):
+    # ---> הוספנו את הפרמטר human_bboxes שמקבל רשימה של קואורדינטות
+    def process_image(self, image_path, source_filename, human_bboxes=None):
         """
-        מקבלת תמונה מהשטח, מאתרת פנים, משווה למאגר הקיים,
-        ואם זו פנים חדשות - מנתחת גיל/מוצא ושומרת את החיתוך.
+        מקבלת תמונה מהשטח (ואופציונלית מיקומים של בני אדם ממנוע הראייה),
+        גוזרת את האנשים בלבד, מאתרת פנים, ומשווה למאגר הקיים.
         """
         try:
-            # 1. איתור וחילוץ כל הפרצופים בתמונה
-            faces = DeepFace.extract_faces(img_path=image_path, detector_backend=self.detector_backend, align=True,
-                                           enforce_detection=False)
+            print(f"  → מנסה לחלץ פנים מ: {source_filename}")
 
-            for idx, face_obj in enumerate(faces):
-                if face_obj["confidence"] < 0.85:
+            # טוענים את התמונה המקורית לזיכרון כדי לגזור ממנה
+            img_bgr = cv2.imread(image_path)
+            if img_bgr is None:
+                return
+
+            crops_to_process = []
+
+            # יישום הרעיון שלך: אם קיבלנו קואורדינטות של בני אדם, נגזור רק אותם
+            if human_bboxes and len(human_bboxes) > 0:
+                print(f"  → משתמש ב-{len(human_bboxes)} מיקומי גוף (BBoxes) שהתקבלו ממנוע הראייה!")
+                for (x1, y1, x2, y2) in human_bboxes:
+                    # הוספת שוליים לחיתוך כדי לא "לגלח" את הראש בטעות
+                    h_img, w_img = img_bgr.shape[:2]
+                    y1 = max(0, int(y1) - 30)
+                    y2 = min(h_img, int(y2) + 30)
+                    x1 = max(0, int(x1) - 30)
+                    x2 = min(w_img, int(x2) + 30)
+
+                    crops_to_process.append(img_bgr[y1:y2, x1:x2])
+            else:
+                # גיבוי: אם לא הגיעו קואורדינטות מסיבה כלשהי, נסרוק את כל התמונה
+                crops_to_process.append(img_bgr)
+
+            # כעת עוברים בלולאה רק על החיתוכים המדויקים של בני האדם
+            for crop in crops_to_process:
+                # שימו לב: DeepFace יודע לקבל פיקסלים חתוכים (crop) במקום נתיב קובץ
+                faces = DeepFace.extract_faces(img_path=crop, detector_backend=self.detector_backend, align=True,
+                                               enforce_detection=False)
+
+                # אם לא נמצאו פנים בחיתוך, נדלג
+                if not faces:
                     continue
 
-                face_img = face_obj["face"]
-                face_img_bgr = cv2.cvtColor((face_img * 255).astype(np.uint8), cv2.COLOR_RGB2BGR)
+                for idx, face_obj in enumerate(faces):
+                    conf = face_obj["confidence"]
+                    print(f"  → פנים {idx}: confidence={conf:.2f}")
+                    if conf < 0.85 or conf == 0.0:
+                        continue
 
-                # 2. קידוד הפנים לווקטור (שימוש בקובץ זמני כדי למנוע קריסת NumPy ב-DeepFace)
-                with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp:
-                    cv2.imwrite(tmp.name, face_img_bgr)
-                    rep = \
-                    DeepFace.represent(img_path=tmp.name, model_name=self.recognition_model, enforce_detection=False)[0]
-                    current_embedding = rep["embedding"]
-                os.remove(tmp.name)  # מחיקת הקובץ הזמני למניעת עומס
+                    face_img = face_obj["face"]
+                    h, w = face_img.shape[:2]
 
-                # 3. בדיקה מול מאגר הזהויות הקיים
-                matched_id = self._find_match_in_db(current_embedding)
+                    # פנים אמיתיות לא יהיו קטנות מ-30x30 פיקסל
+                    if h < 30 or w < 30:
+                        continue
+                    face_img_bgr = cv2.cvtColor((face_img * 255).astype(np.uint8), cv2.COLOR_RGB2BGR)
 
-                if matched_id:
-                    if source_filename not in self.identities_db[matched_id]["appearances"]:
-                        self.identities_db[matched_id]["appearances"].append(source_filename)
-                else:
-                    # 4. פרצוף חדש לגמרי
-                    new_id = f"unknown_{self.unknown_counter}"
-                    self.unknown_counter += 1
+                    # 2. קידוד הפנים (בשמירה כ-PNG למניעת איבוד מידע בדחיסה)
+                    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+                        cv2.imwrite(tmp.name, face_img_bgr)
+                        rep = DeepFace.represent(img_path=tmp.name, model_name=self.recognition_model,
+                                                 enforce_detection=False)[0]
+                        current_embedding = rep["embedding"]
+                    os.remove(tmp.name)  # מחיקת הקובץ הזמני
 
-                    # מניעת קריסה בשמירת קבצים במערכות הפעלה - שם קובץ באנגלית וייחודי תמיד
-                    safe_timestamp = int(time.time() * 1000)
-                    crop_filename = f"face_{new_id}_{safe_timestamp}.jpg"
-                    crop_filepath = os.path.join(self.output_dir, crop_filename)
-                    cv2.imwrite(crop_filepath, face_img_bgr)
+                    # 3. בדיקה מול מאגר הזהויות הקיים
+                    matched_id = self._find_match_in_db(current_embedding)
 
-                    print(f"מנתח דמוגרפיה עבור אדם חדש: {new_id}...")
-                    # שימוש בנתיב הקובץ השמור כדי למנוע קריסה בניתוח הדמוגרפי
-                    demographics = \
-                    DeepFace.analyze(img_path=crop_filepath, actions=['age', 'race'], enforce_detection=False)[0]
+                    if matched_id:
+                        if source_filename not in self.identities_db[matched_id]["appearances"]:
+                            self.identities_db[matched_id]["appearances"].append(source_filename)
+                    else:
+                        # 4. פרצוף חדש לגמרי
+                        new_id = f"unknown_{self.unknown_counter}"
+                        self.unknown_counter += 1
 
-                    dominant_race = demographics["dominant_race"]
-                    estimated_age = demographics["age"]
+                        safe_timestamp = int(time.time() * 1000)
+                        crop_filename = f"face_{new_id}_{safe_timestamp}.jpg"
+                        crop_filepath = os.path.join(self.output_dir, crop_filename)
+                        cv2.imwrite(crop_filepath, face_img_bgr)
 
-                    self.identities_db[new_id] = {
-                        "name": f"אלמוני {self.unknown_counter - 1}",
-                        "embedding": current_embedding,
-                        "is_target": False,
-                        "age": estimated_age,
-                        "race": dominant_race,
-                        "appearances": [source_filename],
-                        "crop_path": crop_filename
-                    }
+                        self.identities_db[new_id] = {
+                            "name": f"אלמוני {self.unknown_counter - 1}",
+                            "embedding": current_embedding,
+                            "is_target": False,
+                            "appearances": [source_filename],
+                            "crop_path": crop_filename
+                        }
 
-        except ValueError:
-            pass
+        except ValueError as e:
+            print(f"ValueError בזיהוי פנים ({source_filename}): {e}")
         except Exception as e:
             print(f"שגיאה בסריקת פנים בתמונה {source_filename}: {e}")
 
-        # עדכנו את סף הרגישות ל-0.68 (המומלץ ל-ArcFace) במקום 0.40
-    def _find_match_in_db(self, target_embedding, threshold=0.68):
-            best_match_id = None
-            best_distance = float("inf")
+    def _find_match_in_db(self, target_embedding, threshold=0.75):
+        best_match_id = None
+        best_distance = float("inf")
 
-            for identity_id, data in self.identities_db.items():
-                db_embedding = data["embedding"]
-                distance = self._cosine_distance(target_embedding, db_embedding)
+        for identity_id, data in self.identities_db.items():
+            db_embedding = data["embedding"]
+            distance = self._cosine_distance(target_embedding, db_embedding)
 
-                if distance < threshold and distance < best_distance:
-                    best_distance = distance
-                    best_match_id = identity_id
+            if distance < threshold and distance < best_distance:
+                best_distance = distance
+                best_match_id = identity_id
 
-            return best_match_id
+        return best_match_id
 
     def _cosine_distance(self, a, b):
         a = np.array(a)
@@ -154,14 +178,11 @@ class FaceIntelligenceAnalyzer:
     def get_report_data(self):
         report_list = []
         for identity_id, data in self.identities_db.items():
-            # מונע הצגה של מטרות חוקר שלא הופיעו באף תמונה מהשטח
             if data["is_target"] and len(data["appearances"]) == 0:
                 continue
 
             report_list.append({
                 "name": data["name"],
-                "age": data["age"],
-                "race": data["race"],
                 "appearances": data["appearances"],
                 "crop_path": data["crop_path"],
                 "is_target": data["is_target"]

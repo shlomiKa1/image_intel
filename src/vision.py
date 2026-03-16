@@ -6,7 +6,6 @@ from pathlib import Path
 from ultralytics import YOLO
 from pillow_heif import register_heif_opener
 
-
 # רישום תמיכה בתמונות פורמט HEIC (אייפון)
 register_heif_opener()
 
@@ -16,7 +15,9 @@ class WorldVisionAnalyzer:
         print("אתחול מנוע מודיעין ויזואלי (YOLO-World)...")
         self.model = YOLO('yolov8s-world.pt')
 
+        # ---> שינוי יחיד: הרחבת המילון עם עשרות פריטים אזרחיים כדי למנוע זיהויי שווא (False Positives)
         self.targets = {
+            # מטרות צבאיות (המקוריות שלך)
             'tank': ('טנק', 10), 'armored personnel carrier': ('נגמ"ש', 10),
             'military truck': ('משאית צבאית', 7), 'military jeep': ("ג'יפ צבאי / האמר", 7),
             'pickup truck with a weapon': ('טנדר חמוש', 9), 'soldier with rifle': ('חייל חמוש', 9),
@@ -25,8 +26,18 @@ class WorldVisionAnalyzer:
             'military helicopter': ('מסוק צבאי', 9), 'fighter jet': ('מטוס קרב', 10),
             'assault rifle': ('רובה / נשק ארוך', 9), 'handgun': ('אקדח', 8),
             'missile launcher': ('משגר טילים', 10), 'military checkpoint': ('מחסום צבאי', 6),
-            'military tent': ('מאהל צבאי', 5), 'civilian car': ('רכב אזרחי', 1),
-            'person': ('אדם (לא חמוש)', 1), 'backpack': ('תיק', 2)
+            'military tent': ('מאהל צבאי', 5),
+
+            # אובייקטים אזרחיים ושגרתיים (נוספו כעת, חומרה 1)
+            'civilian car': ('רכב אזרחי', 1), 'person': ('אדם (לא חמוש)', 1), 'backpack': ('תיק', 2),
+            'dog': ('כלב', 1), 'cat': ('חתול', 1), 'bird': ('ציפור', 1),
+            'bicycle': ('אופניים', 1), 'motorcycle': ('אופנוע', 1), 'bus': ('אוטובוס', 1),
+            'building': ('מבנה / בניין', 1), 'house': ('בית', 1), 'tree': ('עץ', 1),
+            'chair': ('כיסא', 1), 'table': ('שולחן', 1), 'sofa': ('ספה', 1), 'bed': ('מיטה', 1),
+            'laptop': ('מחשב נייד', 1), 'cell phone': ('טלפון סלולרי', 1), 'tv': ('טלוויזיה', 1),
+            'bottle': ('בקבוק', 1), 'cup': ('כוס', 1), 'handbag': ('תיק צד', 1),
+            'umbrella': ('מטריה', 1), 'street sign': ('תמרור', 1), 'traffic light': ('רמזור', 1),
+            'potted plant': ('עציץ', 1), 'refrigerator': ('מקרר', 1), 'books': ('ספרים', 1)
         }
 
         self.classes_eng = list(self.targets.keys())
@@ -83,8 +94,10 @@ class WorldVisionAnalyzer:
         print(f"המודל עודכן בהצלחה עם {len(self.classes_eng)} מטרות.")
 
     def analyze_image(self, image_path):
+        # ---> שינוי 1: הוספנו has_human ו-human_bboxes לערכי ברירת המחדל בשגיאה
         if not os.path.exists(image_path):
-            return {"detections": ["קובץ לא נמצא"], "severity_score": 0, "category": "שגיאה", "annotated_url": None}
+            return {"detections": ["קובץ לא נמצא"], "severity_score": 0, "category": "שגיאה", "annotated_url": None,
+                    "has_human": False, "human_bboxes": []}
 
         try:
             img = Image.open(image_path).convert("RGB")
@@ -99,11 +112,24 @@ class WorldVisionAnalyzer:
             max_severity = 0
             main_category = "לא זוהו מטרות"
 
+            # ---> שינוי 2: אתחול משתנים לאיסוף קואורדינטות בני אדם
+            human_kws = ['person', 'man', 'woman', 'boy', 'girl', 'people', 'human', 'face', 'soldier', 'crowd']
+            human_bboxes = []
+            has_human = False
+
             for box in results.boxes:
                 conf = float(box.conf[0]) * 100
                 class_id = int(box.cls[0])
                 eng_name = self.classes_eng[class_id]
                 heb_name, severity = self.targets[eng_name]
+
+                # ציור המלבנים והטקסט באנגלית למניעת ג'יבריש
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+
+                # ---> שינוי 3: אם האובייקט הוא מסוג אדם, נשמור את הקואורדינטות שלו
+                if any(kw in eng_name.lower() for kw in human_kws):
+                    human_bboxes.append((x1, y1, x2, y2))
+                    has_human = True
 
                 # שמירת כל רמות הוודאות עבור כל אובייקט כדי שנוכל לקבץ
                 if heb_name not in detections_dict:
@@ -114,8 +140,6 @@ class WorldVisionAnalyzer:
                     max_severity = severity
                     main_category = heb_name
 
-                # ציור המלבנים והטקסט באנגלית למניעת ג'יבריש
-                x1, y1, x2, y2 = map(int, box.xyxy[0])
                 cv2.rectangle(img_bgr, (x1, y1), (x2, y2), (0, 0, 255), 3)
 
                 label_for_img = f"{eng_name} ({conf:.1f}%)"
@@ -133,7 +157,6 @@ class WorldVisionAnalyzer:
             output_path = self.output_dir / annotated_filename
             cv2.imwrite(str(output_path), img_bgr)
 
-            # עיבוד התוצאות לדו"ח: קיבוץ ומיון
             # עיבוד התוצאות לדו"ח: קיבוץ ומיון
             res_items = []
             if not detections_dict:
@@ -162,9 +185,12 @@ class WorldVisionAnalyzer:
                 "detections": res_items,
                 "severity_score": final_severity,
                 "category": main_category,
-                "annotated_url": annotated_filename
+                "annotated_url": annotated_filename,
+                "has_human": has_human,  # ---> שינוי 4: הוספה לפלט הסופי
+                "human_bboxes": human_bboxes  # ---> שינוי 4: הוספה לפלט הסופי
             }
 
         except Exception as e:
             print(f"Error in vision analysis: {e}")
-            return {"detections": ["שגיאה בניתוח"], "severity_score": 0, "category": "שגיאה", "annotated_url": None}
+            return {"detections": ["שגיאה בניתוח"], "severity_score": 0, "category": "שגיאה", "annotated_url": None,
+                    "has_human": False, "human_bboxes": []}

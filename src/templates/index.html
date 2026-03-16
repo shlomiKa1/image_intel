@@ -264,15 +264,15 @@
                 <input type="file" name="photos" id="folder-input" multiple webkitdirectory>
             </div>
 
-            <div class="face-toggle-container" id="face-toggle-container">
+            <div class="face-toggle-container active" id="face-toggle-container">
                 <div class="toggle-switch-wrapper" onclick="toggleFaceRecognition()">
                     <span>הפעל מנוע זיהוי וניתוח פנים</span>
                     <label class="switch">
-                        <input type="checkbox" id="face_recognition_toggle" name="face_recognition" value="true">
+                        <input type="checkbox" id="face_recognition_toggle" name="face_recognition" value="true" checked>
                         <span class="slider"></span>
                     </label>
                 </div>
-                <div class="face-targets-area" id="face-targets-area">
+                <div class="face-targets-area" id="face-targets-area" style="display: block;">
                     <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; margin-top: 0;">הוסף תמונות של יעדים ספציפיים לאיתור במאגר התמונות. המערכת תנתח גם פנים לא מוכרות באופן אוטומטי.</p>
                     <div id="face-targets-list"></div>
                     <button type="button" class="btn-add-target" style="margin-bottom: 0; padding: 10px; font-size: 13px;" onclick="addFaceTargetRow()">+ הוסף תמונת יעד חדשה</button>
@@ -283,6 +283,8 @@
 
             <input type="hidden" name="ai_model" id="selected_model_input" value="yolo">
             <input type="hidden" name="dynamic_targets" id="dynamic_targets" value="[]">
+
+            <input type="hidden" name="florence_detail" id="florence_detail_input" value="<DETAILED_CAPTION>">
 
             <button type="submit" class="submit-btn">הפעל סריקה מבצעית</button>
         </form>
@@ -302,16 +304,16 @@
             <p class="mc-title">סריקה טקטית</p>
             <p class="mc-sub">איתור נקודתי מהיר של פריטים ספציפיים</p>
           </div>
-          <div class="model-card" id="card-clip" onclick="selectModel('clip')">
-            <p class="mc-tag">CLIP</p>
-            <p class="mc-title">סריקה הקשרית</p>
-            <p class="mc-sub">סיווג סצנות ואווירה כללית</p>
+          <div class="model-card" id="card-florence" onclick="selectModel('florence')">
+            <p class="mc-tag">Florence-2 (VLM)</p>
+            <p class="mc-title">פענוח חזותי עמוק</p>
+            <p class="mc-sub">תיאור סצנה מילולי ואיתור אובייקטים אוטומטי</p>
           </div>
         </div>
 
-        <p class="section-label">יעדי איסוף ותעדוף</p>
+        <p class="section-label" id="targets-section-label">יעדי איסוף ותעדוף</p>
 
-        <button type="button" class="btn-add-target" onclick="addTargetRow()">+ הוסף מטרה חדשה</button>
+        <button type="button" class="btn-add-target" id="add-target-btn" onclick="addTargetRow()">+ הוסף מטרה חדשה</button>
 
         <button type="button" class="targets-toggle" id="targets-toggle-btn" onclick="toggleExistingTargets()">
             <span>מטרות מערכת קיימות</span>
@@ -342,27 +344,24 @@
               {% endif %}
             </div>
 
-            <div class="targets-scroll" id="clip-targets-list" style="display:none;">
-              {% if clip_targets %}
-                {% for target in clip_targets %}
-                <div class="target-row">
-                  <div class="row-inputs">
-                    <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
-                    <input type="text" class="tgt-eng eng-input" value="{{ target.english }}" placeholder="English">
-                    <button type="button" class="delete-btn" onclick="this.closest('.target-row').remove()" title="מחק">✕</button>
-                  </div>
-                  <div class="sev-row">
-                    <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}"
-                      oninput="updateSev(this)" style="--thumb-color:#0A84FF;">
-                    <span class="sev-badge {{ 'sev-high' if target.severity >= 8 else ('sev-mid' if target.severity >= 5 else 'sev-low') }}">
-                      חומרה {{ target.severity }}
-                    </span>
-                  </div>
+            <div id="florence-settings" style="display:none; padding: 10px 0;">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">מודל זה מפיק תיאור מילולי לכל תמונה ומאתר אובייקטים באופן עצמאי. בחר את רמת הפירוט הרצויה:</p>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="flor_rad" value="<CAPTION>" onchange="document.getElementById('florence_detail_input').value=this.value">
+                        <div>
+                            תיאור קצר ותמציתי (Caption)
+                            <span class="radio-subtext">מפיק משפט אחד המתאר את הסצנה המרכזית.</span>
+                        </div>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="flor_rad" value="<DETAILED_CAPTION>" checked onchange="document.getElementById('florence_detail_input').value=this.value">
+                        <div>
+                            תיאור ארוך ומפורט (Detailed Caption)
+                            <span class="radio-subtext">תיאור עשיר הכולל התייחסות למספר אובייקטים, מיקומים ופעולות (מומלץ).</span>
+                        </div>
+                    </label>
                 </div>
-                {% endfor %}
-              {% else %}
-                <div class="empty-targets" style="color:#3a3a3a; text-align:center; padding:30px 0; font-size:13px;">רשימת יעדים ריקה.</div>
-              {% endif %}
             </div>
         </div>
 
@@ -532,24 +531,40 @@
       document.getElementById('selected_model_input').value = m;
 
       const yoloCard = document.getElementById('card-yolo');
-      const clipCard  = document.getElementById('card-clip');
+      const florenceCard  = document.getElementById('card-florence');
+
       const yoloList  = document.getElementById('yolo-targets-list');
-      const clipList  = document.getElementById('clip-targets-list');
+      const florenceSettings = document.getElementById('florence-settings');
+
+      const addTargetBtn = document.getElementById('add-target-btn');
+      const targetsToggleBtn = document.getElementById('targets-toggle-btn');
+      const targetsLabel = document.getElementById('targets-section-label');
 
       if (m === 'yolo') {
-        yoloCard.classList.add('active');    clipCard.classList.remove('active');
-        yoloList.style.display = 'block';   clipList.style.display = 'none';
+        yoloCard.classList.add('active');    florenceCard.classList.remove('active');
+        yoloList.style.display = 'block';   florenceSettings.style.display = 'none';
+
+        // החזרת פקדים מוסתרים של יעדים
+        addTargetBtn.style.display = 'block';
+        targetsToggleBtn.style.display = 'flex';
+        targetsLabel.textContent = 'יעדי איסוף ותעדוף';
       } else {
-        clipCard.classList.add('active');    yoloCard.classList.remove('active');
-        clipList.style.display = 'block';   yoloList.style.display = 'none';
+        florenceCard.classList.add('active');    yoloCard.classList.remove('active');
+        florenceSettings.style.display = 'block'; yoloList.style.display = 'none';
+
+        // הסתרת פקדים לא רלוונטיים של יעדים עבור מודל פלורנס (שמאתר לבד)
+        addTargetBtn.style.display = 'none';
+        targetsToggleBtn.style.display = 'none';
+        targetsLabel.textContent = 'הגדרות פלט מתקדמות';
+
+        // הבטחה שהתוכן יוצג במלואו כשהוא מוסתר ידנית מהכפתור המכווץ
+        document.getElementById('existing-targets-wrapper').style.display = 'flex';
       }
     }
 
-    function switchModelView(m) { selectModel(m); }
-
     function addTargetRow() {
-      const listId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
-      const list = document.getElementById(listId);
+      // פונקציה זו רלוונטית כעת רק למודל הטקטי (YOLO)
+      const list = document.getElementById('yolo-targets-list');
 
       const emptyState = list.querySelector('.empty-targets');
       if (emptyState) emptyState.remove();
@@ -577,18 +592,23 @@
     }
 
     function saveAiSettings() {
-      const listId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
-      const rows = document.querySelectorAll(`#${listId} .target-row`);
-      const targets = [];
+      // אם אנחנו ב-YOLO, אוספים את הנתונים ומעדכנים את הרשימה הדינמית
+      if (currentAiModel === 'yolo') {
+          const rows = document.querySelectorAll('#yolo-targets-list .target-row');
+          const targets = [];
 
-      rows.forEach(row => {
-        const eng = row.querySelector('.tgt-eng').value.trim();
-        const heb = row.querySelector('.tgt-heb').value.trim();
-        const sev = row.querySelector('.tgt-sev').value;
-        if (eng && heb) targets.push({ english: eng, hebrew: heb, severity: sev });
-      });
+          rows.forEach(row => {
+            const eng = row.querySelector('.tgt-eng').value.trim();
+            const heb = row.querySelector('.tgt-heb').value.trim();
+            const sev = row.querySelector('.tgt-sev').value;
+            if (eng && heb) targets.push({ english: eng, hebrew: heb, severity: sev });
+          });
 
-      document.getElementById('dynamic_targets').value = JSON.stringify(targets);
+          document.getElementById('dynamic_targets').value = JSON.stringify(targets);
+      } else {
+          // מודל פלורנס מסתמך על שדה ה-florence_detail הנסתר שמתעדכן אוטומטית ברדיו
+          document.getElementById('dynamic_targets').value = JSON.stringify([]);
+      }
 
       const btn = document.getElementById('btn-save');
       btn.textContent = '✓ נשמר';
@@ -608,7 +628,6 @@
     const fileMsg = document.getElementById('file-msg');
     const fileMsgSub = document.getElementById('file-msg-sub');
 
-    // השדרוג שמכבה את השדה הלא רלוונטי:
     function setMode(mode) {
         currentMode = mode;
         if (mode === 'files') {
@@ -659,7 +678,7 @@
             document.getElementById('main-content').style.display = 'none';
             document.querySelector('.globe-hero').style.display = 'none';
 
-            // בדיקה אם זיהוי פנים הופעל כדי לשנות את סטטוס הטעינה
+            // סטטוס חכם המציין אם המערכת סורקת גם פנים
             const faceRecEnabled = document.getElementById('face_recognition_toggle').checked;
             const extraMsg = faceRecEnabled ? " וסורקת פנים" : "";
 
