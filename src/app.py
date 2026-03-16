@@ -11,9 +11,13 @@ from map_view import create_map
 from report import create_report
 from timeline import create_timeline
 from vision import WorldVisionAnalyzer
+from vision_clip import ClipVisionAnalyzer  # הייבוא של המודל החדש!
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
-vision_ai = WorldVisionAnalyzer()
+
+# טעינת שני המודלים לזיכרון בעליית השרת לחילוף מהיר
+vision_ai_yolo = WorldVisionAnalyzer()
+vision_ai_clip = ClipVisionAnalyzer()
 
 # מאגר זיכרון למיקומים כדי לא לעכב את השרת על אותה עיר פעמיים
 geolocator = Nominatim(user_agent="image_intel_app")
@@ -46,10 +50,10 @@ def get_city_name(lat, lon):
 
 @app.route('/')
 def index():
-    # שולח ל-HTML את המטרות הקיימות במודל כדי שיוצגו בלוח הבקרה
-    current_targets = vision_ai.get_current_targets()
-    return render_template('index.html', error_message=None, current_targets=current_targets)
-
+    # שולח ל-HTML את המטרות של שני המודלים כדי שיוצגו בלוח הבקרה בהתאמה
+    yolo_targets = vision_ai_yolo.get_current_targets() if hasattr(vision_ai_yolo, 'get_current_targets') else []
+    clip_targets = vision_ai_clip.get_current_targets() if hasattr(vision_ai_clip, 'get_current_targets') else []
+    return render_template('index.html', error_message=None, yolo_targets=yolo_targets, clip_targets=clip_targets)
 
 @app.route('/image/<path:filepath>')
 def serve_image(filepath):
@@ -73,7 +77,16 @@ def analyze_images():
     if not files or files[0].filename == '':
         return render_template('index.html', error_message="שגיאה: לא נבחרו קבצים.")
 
-    # --- עדכון מנוע ה-AI ותרגום חכם מעברית לאנגלית ---
+    # --- איתור בחירת המודל מהמשתמש ---
+    ai_model_choice = request.form.get("ai_model", "yolo")
+    if ai_model_choice == "clip":
+        active_vision_ai = vision_ai_clip
+        print("החוקר בחר במנוע: CLIP (סריקה הקשרית)")
+    else:
+        active_vision_ai = vision_ai_yolo
+        print("החוקר בחר במנוע: YOLO (סריקה טקטית)")
+
+    # --- עדכון מנוע ה-AI הנבחר ותרגום חכם מעברית לאנגלית ---
     dynamic_targets_json = request.form.get("dynamic_targets", "")
     if dynamic_targets_json:
         try:
@@ -87,7 +100,8 @@ def analyze_images():
                     except Exception as e:
                         print(f"Translation error: {e}")
 
-            vision_ai.update_targets(new_targets)
+            # מעדכנים את המודל הפעיל
+            active_vision_ai.update_targets(new_targets)
         except json.JSONDecodeError:
             print("שגיאה בפענוח נתוני המטרות מהמשתמש.")
     # -----------------------------------------------
@@ -111,17 +125,28 @@ def analyze_images():
     for img in images_data:
         filepath = img.get("filepath")
         if filepath:
-            # 1. ניתוח ויזואלי
-            ai_results = vision_ai.analyze_image(os.path.abspath(filepath))
+            # 1. ניתוח ויזואלי במודל שנבחר
+            ai_results = active_vision_ai.analyze_image(os.path.abspath(filepath))
             img["ai_detections"] = ai_results.get("detections", ["לא זוהו מטרות"])
             img["severity_score"] = ai_results.get("severity_score", 0)
             img["category"] = ai_results.get("category", "לא ידוע")
-            img["annotated_url"] = ai_results.get("annotated_url")
 
-            # 2. המרת קואורדינטות לעיר/אזור (Reverse Geocoding)
+            # --- פתרון תצוגת התמונה ל-CLIP ---
+            annotated_url = ai_results.get("annotated_url")
+            if not annotated_url:
+                # המודל לא סיפק תמונה מצוירת? נעתיק את התמונה המקורית לתיקיית התצוגה!
+                filename = os.path.basename(filepath)
+                dest_path = os.path.join(os.getcwd(), 'static', 'detections', filename)
+                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                shutil.copy(os.path.abspath(filepath), dest_path)
+                annotated_url = filename
+
+            img["annotated_url"] = annotated_url
+
+            # 2. המרת קואורדינטות לעיר/אזור
             img["city_name"] = get_city_name(img.get("latitude"), img.get("longitude"))
 
-            # 3. חילוץ תאריך נקי (רק YYYY-MM-DD) לטובת סינון הדו"ח
+            # 3. חילוץ תאריך נקי
             raw_dt = img.get("datetime")
             if raw_dt and raw_dt != "None":
                 img["clean_date"] = str(raw_dt).split(" ")[0]
