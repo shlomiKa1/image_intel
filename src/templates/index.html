@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Image Intel - מודיעין חזותי</title>
+    <title>Image Intel</title>
     <style>
-        /* ייבוא הפונט הישן עבור הכותרות הראשיות */
+        /* ייבוא הפונט רק עבור הכותרת */
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap');
 
         :root {
             --bg-color: #050505;
-            --container-bg: rgba(15, 23, 42, 0.75);
-            --text-color: #e2e8f0;
+            --container-bg: rgba(28, 28, 30, 0.75);
+            --text-color: #f5f5f7;
+            --text-muted: #98989d;
             --accent-color: #0A84FF;
             --accent-hover: #0071e3;
-            --border-color: #334155;
+            --border-color: #38383a;
         }
 
         * {
@@ -25,16 +26,25 @@
 
         /* פונט בסגנון אפל כברירת מחדל לכל האתר */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #050505 70%);
+            background-image: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 70%);
             color: var(--text-color);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            min-height: 100vh; font-weight: 500; letter-spacing: 0.02em; padding: 20px;
+            min-height: 100vh; font-weight: 500; letter-spacing: 0.025em; padding: 20px;
         }
 
-        /* החלת הפונט הקודם (Heebo) רק על הכותרת הראשית */
-        h1 { font-family: 'Heebo', sans-serif !important; }
+        /* החלת הפונט רק על הכותרת הראשית ותיקון החיתוך שביקשת */
+        h1 {
+            font-family: 'Heebo', sans-serif !important;
+            background: linear-gradient(90deg, #9766FF, #628CFE 60%, #0A84FF);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 3.5em; margin-bottom: 5px; margin-top: 0; font-weight: 900; letter-spacing: 1px;
+            line-height: 1.2; padding-bottom: 5px;
+        }
+
+        h2 { margin-top: 15px; font-size: 24px; font-weight: 700; color: #fff; }
+        p { margin-top: 10px; font-weight: 400; line-height: 1.5; color: var(--text-muted); }
 
         /* ===== GLOBE HERO ===== */
         .globe-hero { display: flex; flex-direction: column; align-items: center; padding: 20px 0 0; position: relative; }
@@ -48,30 +58,25 @@
             background-color: var(--container-bg); padding: 40px 50px 50px;
             border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             border: 1px solid rgba(255, 255, 255, 0.05); width: 100%; max-width: 550px;
-            text-align: center; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            text-align: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
 
-        h1 {
-            background: linear-gradient(90deg, #9766FF, #628CFE 60%, #0A84FF);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-size: 3.5em; margin-bottom: 5px; margin-top: 0; font-weight: 800; letter-spacing: 1px;
-        }
-
-        .desc { color: #94a3b8; font-size: 15px; line-height: 1.5; margin-bottom: 30px; font-weight: 400; }
+        .desc { font-size: 15px; margin-bottom: 30px; margin-top: 0; }
 
         /* Apple Style Radio Buttons */
-        .radio-group { display: flex; flex-direction: column; align-items: flex-start; text-align: right; gap: 12px; margin-bottom: 25px; }
-        .radio-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; }
+        .radio-group { display: flex; flex-direction: column; align-items: flex-start; text-align: right; gap: 15px; margin-bottom: 25px; }
+        .radio-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 15px; line-height: 1.4; color: var(--text-color); }
         .radio-label input[type="radio"] {
-            appearance: none; -webkit-appearance: none; width: 22px; height: 22px;
-            border: 2px solid #64748b; border-radius: 50%; background-color: transparent;
-            position: relative; cursor: pointer; outline: none; transition: border-color 0.2s;
+            appearance: none; -webkit-appearance: none; width: 22px; height: 22px; flex-shrink: 0;
+            border: 2px solid var(--text-muted); border-radius: 50%; background-color: transparent;
+            position: relative; cursor: pointer; outline: none; transition: border-color 0.2s; margin-top: 2px;
         }
         .radio-label input[type="radio"]:checked { border-color: var(--accent-color); }
         .radio-label input[type="radio"]:checked::after {
             content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 12px; height: 12px; border-radius: 50%; background-color: var(--accent-color);
+            width: 10px; height: 10px; border-radius: 50%; background-color: var(--accent-color);
         }
+        .radio-subtext { display: block; font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 400; }
 
         .file-drop-area {
             border: 2px dashed var(--border-color); border-radius: 16px; padding: 40px 20px;
@@ -79,16 +84,15 @@
         }
         .file-drop-area:hover { border-color: var(--accent-color); background-color: rgba(10,132,255, 0.05); }
         .file-msg { font-size: 18px; font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-color); }
-        .file-msg-sub { font-size: 13px; color: #64748b; font-weight: 400; }
+        .file-msg-sub { font-size: 13px; color: var(--text-muted); font-weight: 400; }
         input[type="file"] { display: none; }
 
-        /* כפתורי מערכת */
         .btn-settings {
-            background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color);
-            padding: 12px; font-size: 15px; font-weight: 600; border-radius: 12px; cursor: pointer;
+            background-color: transparent; color: var(--accent-color); border: 1px solid var(--border-color);
+            padding: 14px; font-size: 15px; font-weight: 600; border-radius: 14px; cursor: pointer;
             transition: all 0.2s ease; width: 100%; margin-bottom: 15px; font-family: inherit;
         }
-        .btn-settings:hover { background-color: rgba(10,132,255, 0.1); }
+        .btn-settings:hover { background-color: rgba(255,255,255, 0.05); border-color: var(--accent-color); }
 
         .submit-btn {
             background-color: var(--accent-color); color: #fff; border: none; padding: 16px;
@@ -97,50 +101,62 @@
         }
         .submit-btn:active { transform: scale(0.98); background-color: var(--accent-hover); }
 
-        .error-box { background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #fca5a5; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; display: none; }
+        .error-box { background-color: rgba(255, 59, 48, 0.1); border: 1px solid #ff3b30; color: #ff453a; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; display: none; }
 
         /* ===== חלון צף (Modal) להגדרות ה-AI ===== */
-        .ai-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .ai-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
         .ai-modal-content {
-            background-color: var(--container-bg); margin: 5% auto; padding: 30px;
-            border-radius: 24px; width: 90%; max-width: 500px; border: 1px solid var(--border-color);
-            position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: right;
-            max-height: 80vh; display: flex; flex-direction: column;
+            background-color: var(--container-bg); margin: 5% auto; padding: 35px 30px;
+            border-radius: 24px; width: 90%; max-width: 550px; border: 1px solid var(--border-color);
+            position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: right;
+            max-height: 85vh; display: flex; flex-direction: column;
+            overflow-y: auto;
         }
-        .close-btn { position: absolute; top: 15px; left: 20px; font-size: 28px; font-weight: 300; cursor: pointer; color: #94a3b8; transition: 0.2s; }
+        .close-btn { position: absolute; top: 20px; left: 25px; font-size: 32px; font-weight: 300; cursor: pointer; color: var(--text-muted); transition: 0.2s; line-height: 1; }
         .close-btn:hover { color: white; }
 
-        .ai-modal h2 { font-size: 22px; margin-bottom: 10px; color: white; font-family: 'Heebo', sans-serif; }
-        .ai-modal p { font-size: 13px; color: #94a3b8; margin-bottom: 20px; line-height: 1.5; font-weight: 400; }
+        .settings-section { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .settings-section h3 { margin-top: 0; margin-bottom: 15px; font-size: 16px; color: var(--text-color); }
 
-        .targets-container { overflow-y: auto; padding-left: 5px; flex-grow: 1; margin-bottom: 20px; }
+        .targets-container { overflow-y: auto; padding-left: 5px; flex-grow: 1; min-height: 150px; margin-bottom: 10px; }
         .targets-container::-webkit-scrollbar { width: 6px; }
         .targets-container::-webkit-scrollbar-track { background: transparent; }
         .targets-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
 
         .target-row {
             display: flex; gap: 10px; align-items: center; margin-bottom: 12px;
-            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; border: 1px solid #1e293b;
+            background: #1c1c1e; padding: 12px; border-radius: 12px; border: 1px solid #2c2c2e;
+            transition: all 0.3s ease;
         }
         .target-row input[type="text"] {
-            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #334155;
-            background: #0b1121; color: white; font-family: inherit; font-size: 13px; outline: none;
+            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #38383a;
+            background: #000; color: white; font-family: inherit; font-size: 13px; outline: none;
         }
         .target-row input[type="text"]:focus { border-color: var(--accent-color); }
         .slider-box { display: flex; flex-direction: column; width: 100%; max-width: 100px; }
-        .slider-box label { font-size: 11px; color: #94a3b8; text-align: center; margin-bottom: 5px; }
-        .slider-box input[type="range"] { accent-color: var(--accent-color); width: 100%; }
+        .slider-box label { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 5px; }
+        .slider-box input[type="range"] { accent-color: var(--accent-color); width: 100%; cursor: pointer; }
 
-        .btn-add { background: #1e293b; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; font-family: inherit; margin-bottom: 10px; }
-        .btn-add:hover { background: #334155; }
+        /* אפקט הדגשה לשורה חדשה */
+        .highlight-new {
+            animation: highlightPulse 2.5s ease-out forwards;
+            border-right: 4px solid var(--accent-color) !important;
+        }
+        @keyframes highlightPulse {
+            0% { background-color: rgba(10, 132, 255, 0.2); transform: scale(1.02); }
+            100% { background-color: #1c1c1e; transform: scale(1); }
+        }
+
+        .btn-add { background: #2c2c2e; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; font-family: inherit; margin-bottom: 10px; transition: 0.2s; }
+        .btn-add:hover { background: #3a3a3c; }
         .btn-save { background: var(--accent-color); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; font-family: inherit; }
 
         /* מסך טעינה */
-        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
-        .spinner { width: 50px; height: 50px; border: 4px solid #334155; border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .spinner { width: 50px; height: 50px; border: 3px solid #38383a; border-top: 3px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loading-title { font-size: 24px; font-weight: 700; color: white; margin-bottom: 10px; font-family: 'Heebo', sans-serif; }
-        .loading-desc { color: #94a3b8; font-size: 15px; font-weight: 400;}
+        .loading-title { font-size: 24px; font-weight: 700; color: white; margin-bottom: 10px; font-family: 'Heebo', sans-serif;}
+        .loading-desc { color: var(--text-muted); font-size: 15px; font-weight: 400;}
     </style>
 </head>
 <body>
@@ -163,9 +179,21 @@
         <div class="error-box" id="client-error">שגיאה: חובה להזין חומרי גלם או ספריות יעד לפני תחילת הסריקה.</div>
 
         <form id="upload-form" action="/analyze" method="POST" enctype="multipart/form-data">
-            <div class="radio-group">
-                <label class="radio-label"><input type="radio" name="mode" value="files" checked onchange="setMode('files')">הזנת חומרי גלם (קבצים)</label>
-                <label class="radio-label"><input type="radio" name="mode" value="folder" onchange="setMode('folder')">סריקת ספריות יעד (תיקיות)</label>
+            <div class="radio-group" style="margin-bottom: 25px;">
+                <label class="radio-label">
+                    <input type="radio" name="mode" value="files" checked onchange="setMode('files')">
+                    <div>
+                        הזנת חומרי גלם (קבצים בודדים)
+                        <span class="radio-subtext">תמיכה מלאה בתמונות ממרחב iOS ואנדרואיד</span>
+                    </div>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="mode" value="folder" onchange="setMode('folder')">
+                    <div>
+                        סריקת ספריות יעד (תיקיות שלמות)
+                        <span class="radio-subtext">איסוף גורף של כלל התוכן בתיקייה ותתי-התיקיות</span>
+                    </div>
+                </label>
             </div>
 
             <div class="file-drop-area" id="drop-area">
@@ -175,8 +203,9 @@
                 <input type="file" name="photos" id="folder-input" multiple webkitdirectory>
             </div>
 
-            <button type="button" class="btn-settings" onclick="openAiModal()">הגדרת מנוע חיפוש ועיבוד מטרות</button>
+            <button type="button" class="btn-settings" onclick="openAiModal()">הגדרות מנוע סריקה ויעדי איסוף</button>
 
+            <input type="hidden" name="ai_model" id="selected_model_input" value="yolo">
             <input type="hidden" name="dynamic_targets" id="dynamic_targets">
 
             <button type="submit" class="submit-btn">הפעל סריקה מבצעית</button>
@@ -186,23 +215,68 @@
     <div id="aiModal" class="ai-modal">
         <div class="ai-modal-content">
             <span class="close-btn" onclick="closeAiModal()">×</span>
-            <h2>הגדרת מטרות AI</h2>
-            <p>המודל סורק כל אובייקט בתמונה. כאן תוכל לצפות במטרות המוגדרות כעת, לשנות את רמת חשיבותן (1-10 המשפיעה על המיון), ולהוסיף מטרות חדשות (גם בעברית).</p>
+            <h2>הגדרות מנוע סריקה</h2>
+            <p>בחר את המודל המודיעיני הנדרש למשימה זו ונהל את מטרות האיסוף שלו.</p>
 
-            <div class="targets-container" id="targets-list">
-                {% for target in current_targets %}
-                <div class="target-row">
-                    <input type="text" class="tgt-eng" value="{{ target.english }}" placeholder="באנגלית (או בעברית ונתרגם)">
-                    <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
-                    <div class="slider-box">
-                        <label>חשיבות: <span class="val-disp">{{ target.severity }}</span></label>
-                        <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}" oninput="this.previousElementSibling.querySelector('.val-disp').innerText = this.value">
-                    </div>
+            <div class="settings-section">
+                <h3>בחירת מודל פענוח</h3>
+                <div class="radio-group" style="margin-bottom: 0;">
+                    <label class="radio-label">
+                        <input type="radio" name="modal_model_select" value="yolo" checked onchange="switchModelView('yolo')">
+                        <div>
+                            סריקה טקטית (YOLO-World)
+                            <span class="radio-subtext">איתור נקודתי מהיר של פריטים ספציפיים במרחב.</span>
+                        </div>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="modal_model_select" value="clip" onchange="switchModelView('clip')">
+                        <div>
+                            סריקה הקשרית (CLIP)
+                            <span class="radio-subtext">סיווג עמוק של סצנות, אווירה והקשר כללי של התמונה.</span>
+                        </div>
+                    </label>
                 </div>
-                {% endfor %}
             </div>
 
-            <button type="button" class="btn-add" onclick="addTargetRow()">+ הוסף מטרה אישית חדשה</button>
+            <div class="settings-section" style="flex-grow: 1; display: flex; flex-direction: column;">
+                <h3>יעדי איסוף ותעדוף</h3>
+                <p style="margin-top:0; margin-bottom: 15px;">קבע רמת חשיבות (1-10) לכל מטרה. מטרות בציון גבוה יוקפצו לראש הדו"ח. ניתן להוסיף מטרות חדשות בעברית והמערכת תתרגם אותן.</p>
+
+                <div class="targets-container" id="yolo-targets-list">
+                    {% if yolo_targets %}
+                        {% for target in yolo_targets %}
+                        <div class="target-row">
+                            <input type="text" class="tgt-eng" value="{{ target.english }}" placeholder="באנגלית" readonly style="color:#64748b;">
+                            <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
+                            <div class="slider-box">
+                                <label>חשיבות: <span class="val-disp">{{ target.severity }}</span></label>
+                                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}" oninput="this.previousElementSibling.querySelector('.val-disp').innerText = this.value">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="color: #64748b; text-align: center; margin-top: 20px;">רשימת יעדים ריקה. וודא ש-app.py מעודכן.</div>
+                    {% endif %}
+                </div>
+
+                <div class="targets-container" id="clip-targets-list" style="display: none;">
+                    {% if clip_targets %}
+                        {% for target in clip_targets %}
+                        <div class="target-row">
+                            <input type="text" class="tgt-eng" value="{{ target.english }}" placeholder="באנגלית" readonly style="color:#64748b;">
+                            <input type="text" class="tgt-heb" value="{{ target.hebrew }}" placeholder="שם לתצוגה">
+                            <div class="slider-box">
+                                <label>חשיבות: <span class="val-disp">{{ target.severity }}</span></label>
+                                <input type="range" class="tgt-sev" min="1" max="10" value="{{ target.severity }}" oninput="this.previousElementSibling.querySelector('.val-disp').innerText = this.value">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="button" class="btn-add" onclick="addTargetRow()">+ הוסף מטרה חדשה</button>
+            </div>
+
             <button type="button" class="btn-save" onclick="saveAiSettings()">שמור הגדרות</button>
         </div>
     </div>
@@ -255,6 +329,7 @@
 
     /* ===== AI MODAL LOGIC ===== */
     const aiModal = document.getElementById('aiModal');
+    let currentAiModel = 'yolo';
 
     function openAiModal() { aiModal.style.display = 'block'; }
     function closeAiModal() { aiModal.style.display = 'none'; }
@@ -263,24 +338,49 @@
         if (event.target == aiModal) { closeAiModal(); }
     }
 
+    // החלפת תצוגת מילון מטרות לפי המודל הנבחר
+    function switchModelView(modelType) {
+        currentAiModel = modelType;
+        document.getElementById('selected_model_input').value = modelType;
+
+        if(modelType === 'yolo') {
+            document.getElementById('yolo-targets-list').style.display = 'block';
+            document.getElementById('clip-targets-list').style.display = 'none';
+        } else {
+            document.getElementById('yolo-targets-list').style.display = 'none';
+            document.getElementById('clip-targets-list').style.display = 'block';
+        }
+    }
+
     function addTargetRow() {
-        const list = document.getElementById('targets-list');
+        const activeListId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
+        const list = document.getElementById(activeListId);
+
         const row = document.createElement('div');
-        row.className = 'target-row';
+        row.className = 'target-row highlight-new';
         row.innerHTML = `
-            <input type="text" class="tgt-eng" placeholder="באנגלית (או בעברית ונתרגם)">
+            <input type="text" class="tgt-eng" placeholder="אנגלית (או עברית ונתרגם)">
             <input type="text" class="tgt-heb" placeholder="שם לתצוגה">
             <div class="slider-box">
                 <label>חשיבות: <span class="val-disp">5</span></label>
                 <input type="range" class="tgt-sev" min="1" max="10" value="5" oninput="this.previousElementSibling.querySelector('.val-disp').innerText = this.value">
             </div>
         `;
-        list.prepend(row); // הוספה לראש הרשימה
+
+        list.appendChild(row); // הוספה לתחתית הרשימה
+
+        // גלילה חלקה לשורה החדשה ופוקוס על שדה ההקלדה כדי שיהיה ברור למשתמש
+        setTimeout(() => {
+            list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+            row.querySelector('.tgt-eng').focus();
+        }, 50);
     }
 
     function saveAiSettings() {
-        const rows = document.querySelectorAll('.target-row');
+        const activeListId = currentAiModel === 'yolo' ? 'yolo-targets-list' : 'clip-targets-list';
+        const rows = document.querySelectorAll(`#${activeListId} .target-row`);
         const targets = [];
+
         rows.forEach(row => {
             const eng = row.querySelector('.tgt-eng').value.trim();
             const heb = row.querySelector('.tgt-heb').value.trim();
@@ -289,11 +389,12 @@
                 targets.push({english: eng, hebrew: heb, severity: sev});
             }
         });
+
         document.getElementById('dynamic_targets').value = JSON.stringify(targets);
         closeAiModal();
     }
 
-    /* ===== FORM LOGIC ===== */
+    /* ===== UPLOAD LOGIC ===== */
     let currentMode = 'files';
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('file-input');
@@ -326,7 +427,7 @@
         if (total > 0) {
             fileMsg.textContent = "נקלטו " + total + " חומרי גלם במערכת";
             fileMsg.style.color = "var(--accent-color)";
-            fileMsgSub.textContent = "המערכת מוכנה.";
+            fileMsgSub.textContent = "המערכת מוכנה לסריקה.";
         } else {
             setMode(currentMode);
         }
@@ -338,7 +439,7 @@
             e.preventDefault();
             document.getElementById('client-error').style.display = 'block';
         } else {
-            // שמירת ההגדרות למקרה שהמשתמש לא לחץ שמור
+            // שמירת ההגדרות (גם אם המשתמש לא לחץ שמור וסגור אלא ישר הפעיל סריקה)
             saveAiSettings();
 
             document.getElementById('client-error').style.display = 'none';
