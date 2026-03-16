@@ -109,11 +109,7 @@ class FaceIntelligenceAnalyzer:
                         continue
 
                     face_img = face_obj["face"]
-                    h, w = face_img.shape[:2]
 
-                    # פנים אמיתיות לא יהיו קטנות מ-30x30 פיקסל
-                    if h < 30 or w < 30:
-                        continue
                     face_img_bgr = cv2.cvtColor((face_img * 255).astype(np.uint8), cv2.COLOR_RGB2BGR)
 
                     # 2. קידוד הפנים (בשמירה כ-PNG למניעת איבוד מידע בדחיסה)
