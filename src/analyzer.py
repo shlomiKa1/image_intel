@@ -78,7 +78,7 @@ def analyzer(data_dicts: list[dict]) -> dict | None:
         prev_filename, prev_camera, prev_time, prev_severity = curr_filename, curr_camera, curr_time, severity_score
 
     # שיניתי ל-2 מטרות כדי שיהיה קל יותר לראות את התובנה קופצת בבדיקות
-    if high_severity_count >= 2:
+    if high_severity_count >= 3:
         res["insights"].append(
             f"⚡ דפוס מבצעי: זוהה ריכוז מטרות צבאיות ({high_severity_count} פריטים). סוגי מטרות: {', '.join(set(military_targets))}.")
 

@@ -80,8 +80,12 @@ def serve_detections(filename):
 def analyze_images():
     start_time = time.time()  # תחילת מדידת זמן הסריקה
 
-    files = request.files.getlist("photos")
-    if not files or files[0].filename == '':
+    # שליפת כל הקבצים וסינון אלו שאין להם שם (שדות קלט ריקים)
+    raw_files = request.files.getlist("photos")
+    files = [f for f in raw_files if f.filename != '']
+
+    # עכשיו בודקים באמת אם אין קבצים בכלל
+    if not files:
         return render_template('index.html', error_message="שגיאה: לא נבחרו קבצים.")
 
     # --- איתור בחירת המודל מהמשתמש ---
