@@ -1,34 +1,31 @@
-# --- Web Server & API ---
+# --- Web & General ---
 Flask
-Werkzeug
+deep-translator
 
-# --- Image Processing & EXIF ---
+# --- Image Processing ---
 Pillow
 pillow-heif
 opencv-python==4.9.0.80
-piexif
 
-# --- AI Models & Machine Learning ---
-ultralytics
+# --- Core Data ---
+numpy<2
+
+# --- Deep Learning & AI Foundations ---
 torch
 torchvision
-transformers==4.41.2
-timm
-einops
-huggingface-hub
+tensorflow
 tf-keras
-deepface==0.0.99
+timm
+
+# --- Specific AI Models ---
+ultralytics
+transformers==4.41.2
+einops
 git+https://github.com/openai/CLIP.git
+deepface==0.0.99
+retina-face
 
-# --- Utilities & Data ---
-deep-translator
-geopy
-numpy
-
-# --- Mapping & UI ---
+# --- Mapping ---
 folium
 branca
-matplotlib
-
-# --- Testing ---
-pytest
+geopy

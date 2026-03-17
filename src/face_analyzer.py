@@ -1,9 +1,11 @@
 import os
+import tempfile
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
 import cv2
 import numpy as np
 from deepface import DeepFace
 import time
-import tempfile  # ייבוא קריטי לטיפול בקבצים זמניים ומניעת קריסות
 
 
 class FaceIntelligenceAnalyzer:
@@ -16,7 +18,7 @@ class FaceIntelligenceAnalyzer:
         os.makedirs(self.output_dir, exist_ok=True)
 
         self.recognition_model = "ArcFace"
-        self.detector_backend = "opencv"
+        self.detector_backend = "retinaface"
 
         self.identities_db = {}
         self.unknown_counter = 1
@@ -149,7 +151,7 @@ class FaceIntelligenceAnalyzer:
         except Exception as e:
             print(f"שגיאה בסריקת פנים בתמונה {source_filename}: {e}")
 
-    def _find_match_in_db(self, target_embedding, threshold=0.75):
+    def _find_match_in_db(self, target_embedding, threshold=0.82):
         best_match_id = None
         best_distance = float("inf")
 
