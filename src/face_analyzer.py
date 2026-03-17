@@ -75,7 +75,9 @@ class FaceIntelligenceAnalyzer:
             img_bgr = cv2.imread(image_path)
             if img_bgr is None:
                 return
-
+            h_temp, w_temp = img_bgr.shape[:2]
+            human_bboxes = [(0, 0, w_temp, h_temp)]
+            print("  [מצב בדיקה] מתעלם ממנוע הראייה - סורק את התמונה המלאה")
             crops_to_process = []
 
             # יישום הרעיון שלך: אם קיבלנו קואורדינטות של בני אדם, נגזור רק אותם

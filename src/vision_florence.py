@@ -104,6 +104,7 @@ class FlorenceVisionAnalyzer:
 
         try:
             image = Image.open(image_path).convert("RGB")
+            print(f"{image_path} is analyzing via florence")
 
             # ---------------------------------------------------------
             # משימה 1: הפקת תיאור סצנה מילולי (Text Generation)
@@ -160,12 +161,12 @@ class FlorenceVisionAnalyzer:
                         human_bboxes.append((x1, y1, x2, y2))
 
                     # ציור מלבן אדום סביב האובייקט
-                    cv2.rectangle(img_bgr, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                    cv2.rectangle(img_bgr, (x1, y1), (x2, y2), (0, 0, 255), 4)
 
                     # הוספת רקע לטקסט כדי שיהיה קריא
                     font = cv2.FONT_HERSHEY_SIMPLEX
-                    font_scale = 0.7
-                    thickness = 2
+                    font_scale = 1.2
+                    thickness = 3
                     text_size = cv2.getTextSize(label, font, font_scale, thickness)[0]
                     cv2.rectangle(img_bgr, (x1, y1 - text_size[1] - 5), (x1 + text_size[0], y1), (0, 0, 255), -1)
                     cv2.putText(img_bgr, label, (x1, y1 - 2), font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
