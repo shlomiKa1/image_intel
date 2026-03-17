@@ -125,7 +125,7 @@ class FaceIntelligenceAnalyzer:
                     os.remove(tmp.name)  # מחיקת הקובץ הזמני
 
                     # 3. בדיקה מול מאגר הזהויות הקיים
-                    matched_id = self._find_match_in_db(current_embedding)
+                    matched_id = self._find_match_in_db(current_embedding,current_filename=source_filename)
 
                     if matched_id:
                         if source_filename not in self.identities_db[matched_id]["appearances"]:
@@ -153,11 +153,13 @@ class FaceIntelligenceAnalyzer:
         except Exception as e:
             print(f"שגיאה בסריקת פנים בתמונה {source_filename}: {e}")
 
-    def _find_match_in_db(self, target_embedding, threshold=0.72):
+    def _find_match_in_db(self, target_embedding,current_filename, threshold=0.72):
         best_match_id = None
         best_distance = float("inf")
 
         for identity_id, data in self.identities_db.items():
+            if current_filename in data["appearances"]:
+                continue
             db_embedding = data["embedding"]
             distance = self._cosine_distance(target_embedding, db_embedding)
 
