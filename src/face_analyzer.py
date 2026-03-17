@@ -151,7 +151,7 @@ class FaceIntelligenceAnalyzer:
         except Exception as e:
             print(f"שגיאה בסריקת פנים בתמונה {source_filename}: {e}")
 
-    def _find_match_in_db(self, target_embedding, threshold=0.82):
+    def _find_match_in_db(self, target_embedding, threshold=0.72):
         best_match_id = None
         best_distance = float("inf")
 
