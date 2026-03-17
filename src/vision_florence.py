@@ -37,8 +37,19 @@ class FlorenceVisionAnalyzer:
         # שימוש בגרסת הבסיס (base) שהיא מאוזנת בין מהירות לביצועים
         model_id = "microsoft/Florence-2-base"
 
-        self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
-        self.model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True).to(self.device)
+        try:
+            # מנסה לטעון מהמחסן המקומי בלי לבדוק אינטרנט
+            self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True, local_files_only=True)
+            self.model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True,
+                                                              local_files_only=True).to(self.device)
+            print("Florence-2 loaded from local cache (Offline Mode).")
+        except Exception:
+            # אם אין קבצים מקומיים, חוזרים למצב המקורי שלך ומורידים מהרשת
+            print("Downloading Florence-2 for the first time...")
+            self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
+            self.model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True).to(self.device)
+
+
         self.model.eval()  # נעילת המודל למצב הסקה (לא אימון)
 
         # הגדרת תיקיית הפלט לתמונות שעליהן נצייר את הממצאים

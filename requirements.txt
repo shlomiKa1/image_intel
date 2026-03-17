@@ -5,7 +5,7 @@ Werkzeug
 # --- Image Processing & EXIF ---
 Pillow
 pillow-heif
-opencv-python
+opencv-python==4.9.0.80
 piexif
 
 # --- AI Models & Machine Learning ---
@@ -17,7 +17,7 @@ timm
 einops
 huggingface-hub
 tf-keras
-deepface
+deepface==0.0.99
 git+https://github.com/openai/CLIP.git
 
 # --- Utilities & Data ---
